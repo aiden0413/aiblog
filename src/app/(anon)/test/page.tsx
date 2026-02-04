@@ -1,7 +1,16 @@
 "use client";
 
 import { Component, FormEvent } from "react";
+import dynamic from "next/dynamic";
 import type { TemplateType } from "@/backend/applications/prompt/dtos/PromptRequestDto";
+
+const MarkdownEditor = dynamic(
+  () =>
+    import("@/app/(anon)/components/MarkdownEditor/MarkdownEditor").then(
+      (mod) => ({ default: mod.MarkdownEditor })
+    ),
+  { ssr: false }
+);
 
 interface GenerateBlogResult {
   content: string;
@@ -78,7 +87,7 @@ export default class TestPage extends Component<object, TestPageState> {
       this.state;
 
     return (
-      <main className="min-h-screen p-8 max-w-3xl mx-auto">
+      <main className="min-h-screen p-8 max-w-7xl mx-auto">
         <h1 className="text-2xl font-bold">블로그 글 생성 API 테스트</h1>
         <p className="mt-2 text-zinc-600 mb-8">
           제목, 키워드, 타입, 코드 포함 여부를 입력 후 API를 호출해 블로그 글을 생성하세요.
@@ -163,11 +172,12 @@ export default class TestPage extends Component<object, TestPageState> {
         {result && (
           <div className="mt-8 space-y-6">
             <h2 className="text-lg font-semibold text-zinc-800">생성된 블로그 글</h2>
-            <div className="rounded border border-zinc-200 bg-zinc-50 p-4">
-              <pre className="text-sm text-zinc-800 whitespace-pre-wrap overflow-x-auto">
-                {result.content}
-              </pre>
-            </div>
+            <MarkdownEditor
+              text={result.content}
+              editable={true}
+              height="600px"
+              minHeight="400px"
+            />
           </div>
         )}
       </main>
