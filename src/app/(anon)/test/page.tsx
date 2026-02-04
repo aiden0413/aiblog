@@ -3,9 +3,8 @@
 import { Component, FormEvent } from "react";
 import type { TemplateType } from "@/backend/applications/prompt/dtos/PromptRequestDto";
 
-interface CreatePromptResult {
-  systemContent: string;
-  userContent: string;
+interface GenerateBlogResult {
+  content: string;
 }
 
 interface TestPageState {
@@ -13,7 +12,7 @@ interface TestPageState {
   keywordsInput: string;
   templateType: TemplateType;
   includeCode: boolean;
-  result: CreatePromptResult | null;
+  result: GenerateBlogResult | null;
   error: string | null;
   loading: boolean;
 }
@@ -80,9 +79,9 @@ export default class TestPage extends Component<object, TestPageState> {
 
     return (
       <main className="min-h-screen p-8 max-w-3xl mx-auto">
-        <h1 className="text-2xl font-bold">프롬프트 API 테스트</h1>
+        <h1 className="text-2xl font-bold">블로그 글 생성 API 테스트</h1>
         <p className="mt-2 text-zinc-600 mb-8">
-          제목, 키워드, 타입, 코드 포함 여부를 입력 후 API를 호출해 결과를 확인하세요.
+          제목, 키워드, 타입, 코드 포함 여부를 입력 후 API를 호출해 블로그 글을 생성하세요.
         </p>
 
         <form onSubmit={this.handleSubmit} className="space-y-6">
@@ -151,7 +150,7 @@ export default class TestPage extends Component<object, TestPageState> {
             disabled={loading}
             className="rounded bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
           >
-            {loading ? "요청 중..." : "API 호출"}
+            {loading ? "생성 중..." : "블로그 글 생성"}
           </button>
         </form>
 
@@ -163,19 +162,10 @@ export default class TestPage extends Component<object, TestPageState> {
 
         {result && (
           <div className="mt-8 space-y-6">
-            <h2 className="text-lg font-semibold text-zinc-800">결과</h2>
-
-            <div>
-              <h3 className="text-sm font-medium text-zinc-600 mb-2">systemContent</h3>
-              <pre className="rounded border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-800 whitespace-pre-wrap overflow-x-auto">
-                {result.systemContent}
-              </pre>
-            </div>
-
-            <div>
-              <h3 className="text-sm font-medium text-zinc-600 mb-2">userContent</h3>
-              <pre className="rounded border border-zinc-200 bg-zinc-50 p-4 text-sm text-zinc-800 whitespace-pre-wrap overflow-x-auto">
-                {result.userContent}
+            <h2 className="text-lg font-semibold text-zinc-800">생성된 블로그 글</h2>
+            <div className="rounded border border-zinc-200 bg-zinc-50 p-4">
+              <pre className="text-sm text-zinc-800 whitespace-pre-wrap overflow-x-auto">
+                {result.content}
               </pre>
             </div>
           </div>

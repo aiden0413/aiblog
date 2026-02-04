@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CreatePromptUsecase } from "@/backend/applications/prompt/usecases/CreatePromptUsecase";
+import { OpenAIRepository } from "@/backend/infrastructure/repository/OpenAIRepository";
 import type { PromptRequestDto, TemplateType } from "@/backend/applications/prompt/dtos/PromptRequestDto";
 
 const TEMPLATE_TYPES: TemplateType[] = ["튜토리얼", "TIL", "트러블슈팅"];
@@ -34,8 +35,9 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const usecase = new CreatePromptUsecase();
-    const result = usecase.execute(params);
+    const promptGenerateRepository = new OpenAIRepository();
+    const usecase = new CreatePromptUsecase(promptGenerateRepository);
+    const result = await usecase.execute(params);
 
     return NextResponse.json(result);
   } catch (err) {
