@@ -1,29 +1,13 @@
 "use client";
 
-import { Component, FormEvent } from "react";
-import dynamic from "next/dynamic";
+import { FormEvent, useState } from "react";
 import type { TemplateType } from "@/backend/applications/prompt/dtos/PromptRequestDto";
-
-const MarkdownEditor = dynamic(
-  () =>
-    import("@/app/(anon)/components/MarkdownEditor/MarkdownEditor").then(
-      (mod) => ({ default: mod.MarkdownEditor })
-    ),
-  { ssr: false }
-);
+import { TextInput } from "../components/TextInput/TextInput";
+import { Dropdown } from "../components/Dropdown/Dropdown";
+import { MarkdownEditor } from "../components/MarkdownEditor/MarkdownEditor";
 
 interface GenerateBlogResult {
   content: string;
-}
-
-interface TestPageState {
-  topic: string;
-  keywordsInput: string;
-  templateType: TemplateType;
-  includeCode: boolean;
-  result: GenerateBlogResult | null;
-  error: string | null;
-  loading: boolean;
 }
 
 const TEMPLATE_OPTIONS: { value: TemplateType; label: string }[] = [
@@ -32,22 +16,20 @@ const TEMPLATE_OPTIONS: { value: TemplateType; label: string }[] = [
   { value: "트러블슈팅", label: "트러블슈팅" },
 ];
 
-export default class TestPage extends Component<object, TestPageState> {
-  state: TestPageState = {
-    topic: "",
-    keywordsInput: "",
-    templateType: "튜토리얼",
-    includeCode: false,
-    result: null,
-    error: null,
-    loading: false,
-  };
+export default function TestPage() {
+  const [topic, setTopic] = useState("");
+  const [keywordsInput, setKeywordsInput] = useState("");
+  const [templateType, setTemplateType] = useState<TemplateType>("튜토리얼");
+  const [includeCode, setIncludeCode] = useState(false);
+  const [result, setResult] = useState<GenerateBlogResult | null>(null);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const { topic, keywordsInput, templateType, includeCode } = this.state;
-
-    this.setState({ error: null, result: null, loading: true });
+    setError(null);
+    setResult(null);
+    setLoading(true);
 
     const keywords = keywordsInput
       .split(",")
@@ -69,118 +51,93 @@ export default class TestPage extends Component<object, TestPageState> {
       const data = await res.json();
 
       if (!res.ok) {
-        this.setState({ error: data.error ?? "요청 실패", loading: false });
+        setError(data.error ?? "요청 실패");
+        setLoading(false);
         return;
       }
 
-      this.setState({ result: data, loading: false });
+      setResult(data);
     } catch (err) {
-      this.setState({
-        error: err instanceof Error ? err.message : "요청 중 오류 발생",
-        loading: false,
-      });
+      setError(err instanceof Error ? err.message : "요청 중 오류 발생");
+    } finally {
+      setLoading(false);
     }
   };
 
-  render() {
-    const { topic, keywordsInput, templateType, includeCode, result, error, loading } =
-      this.state;
+  return (
+    <main className="min-h-screen p-8 max-w-7xl mx-auto">
+      <h1 className="text-2xl font-bold">블로그 글 생성 API 테스트</h1>
+      <p className="mt-2 text-zinc-600 mb-8">
+        제목, 키워드, 타입, 코드 포함 여부를 입력 후 API를 호출해 블로그 글을 생성하세요.
+      </p>
 
-    return (
-      <main className="min-h-screen p-8 max-w-7xl mx-auto">
-        <h1 className="text-2xl font-bold">블로그 글 생성 API 테스트</h1>
-        <p className="mt-2 text-zinc-600 mb-8">
-          제목, 키워드, 타입, 코드 포함 여부를 입력 후 API를 호출해 블로그 글을 생성하세요.
-        </p>
+      <form onSubmit={handleSubmit} className="space-y-6">
+        <TextInput
+          id="topic"
+          label="제목"
+          type="text"
+          value={topic}
+          onChange={(e) => setTopic(e.target.value)}
+          placeholder="예: Next.js App Router 사용법"
+          required
+        />
 
-        <form onSubmit={this.handleSubmit} className="space-y-6">
-          <div>
-            <label htmlFor="topic" className="block text-sm font-medium text-zinc-700 mb-1">
-              제목
-            </label>
-            <input
-              id="topic"
-              type="text"
-              value={topic}
-              onChange={(e) => this.setState({ topic: e.target.value })}
-              placeholder="예: Next.js App Router 사용법"
-              className="w-full rounded border border-zinc-300 px-3 py-2 text-zinc-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-              required
-            />
-          </div>
+        <TextInput
+          id="keywords"
+          label="키워드 (쉼표로 구분)"
+          type="text"
+          value={keywordsInput}
+          onChange={(e) => setKeywordsInput(e.target.value)}
+          placeholder="예: Next.js, React, 라우팅"
+        />
 
-          <div>
-            <label htmlFor="keywords" className="block text-sm font-medium text-zinc-700 mb-1">
-              키워드 (쉼표로 구분)
-            </label>
-            <input
-              id="keywords"
-              type="text"
-              value={keywordsInput}
-              onChange={(e) => this.setState({ keywordsInput: e.target.value })}
-              placeholder="예: Next.js, React, 라우팅"
-              className="w-full rounded border border-zinc-300 px-3 py-2 text-zinc-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            />
-          </div>
+        <Dropdown
+          id="templateType"
+          label="글 템플릿 유형"
+          options={TEMPLATE_OPTIONS}
+          value={templateType}
+          onChange={(e) => setTemplateType(e.target.value as TemplateType)}
+        />
 
-          <div>
-            <label htmlFor="templateType" className="block text-sm font-medium text-zinc-700 mb-1">
-              글 템플릿 유형
-            </label>
-            <select
-              id="templateType"
-              value={templateType}
-              onChange={(e) => this.setState({ templateType: e.target.value as TemplateType })}
-              className="w-full rounded border border-zinc-300 px-3 py-2 text-zinc-900 focus:border-blue-500 focus:outline-none focus:ring-1 focus:ring-blue-500"
-            >
-              {TEMPLATE_OPTIONS.map((opt) => (
-                <option key={opt.value} value={opt.value}>
-                  {opt.label}
-                </option>
-              ))}
-            </select>
-          </div>
+        <div className="flex items-center gap-2">
+          <input
+            id="includeCode"
+            type="checkbox"
+            checked={includeCode}
+            onChange={(e) => setIncludeCode(e.target.checked)}
+            className="h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
+          />
+          <label htmlFor="includeCode" className="text-sm font-medium text-zinc-700">
+            코드 포함
+          </label>
+        </div>
 
-          <div className="flex items-center gap-2">
-            <input
-              id="includeCode"
-              type="checkbox"
-              checked={includeCode}
-              onChange={(e) => this.setState({ includeCode: e.target.checked })}
-              className="h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
-            />
-            <label htmlFor="includeCode" className="text-sm font-medium text-zinc-700">
-              코드 포함
-            </label>
-          </div>
+        <button
+          type="submit"
+          disabled={loading}
+          className="rounded bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
+        >
+          {loading ? "생성 중..." : "블로그 글 생성"}
+        </button>
+      </form>
 
-          <button
-            type="submit"
-            disabled={loading}
-            className="rounded bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {loading ? "생성 중..." : "블로그 글 생성"}
-          </button>
-        </form>
+      {error && (
+        <div className="mt-8 rounded border border-red-200 bg-red-50 p-4 text-red-700">
+          <strong>오류</strong>: {error}
+        </div>
+      )}
 
-        {error && (
-          <div className="mt-8 rounded border border-red-200 bg-red-50 p-4 text-red-700">
-            <strong>오류</strong>: {error}
-          </div>
-        )}
-
-        {result && (
-          <div className="mt-8 space-y-6">
-            <h2 className="text-lg font-semibold text-zinc-800">생성된 블로그 글</h2>
-            <MarkdownEditor
-              text={result.content}
-              editable={true}
-              height="600px"
-              minHeight="400px"
-            />
-          </div>
-        )}
-      </main>
-    );
-  }
+      {result && (
+        <div className="mt-8 space-y-6">
+          <h2 className="text-lg font-semibold text-zinc-800">생성된 블로그 글</h2>
+          <MarkdownEditor
+            text={result.content}
+            editable={true}
+            height="600px"
+            minHeight="400px"
+          />
+        </div>
+      )}
+    </main>
+  );
 }

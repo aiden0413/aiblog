@@ -1,6 +1,6 @@
 "use client";
 
-import { Component, createRef } from "react";
+import { useEffect, useRef } from "react";
 import Editor from "@toast-ui/editor";
 import "@toast-ui/editor/dist/toastui-editor.css";
 import "@toast-ui/editor/dist/toastui-editor-viewer.css";
@@ -15,33 +15,20 @@ interface MarkdownEditorProps {
   minHeight?: string;
 }
 
-export class MarkdownEditor extends Component<MarkdownEditorProps> {
-  private containerRef = createRef<HTMLDivElement>();
-  private editor: ReturnType<typeof Editor.factory> | null = null;
+export function MarkdownEditor({
+  text,
+  editable = true,
+  height = "400px",
+  minHeight,
+}: MarkdownEditorProps) {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const editorRef = useRef<ReturnType<typeof Editor.factory> | null>(null);
 
-  componentDidMount() {
-    this.initEditor();
-  }
+  useEffect(() => {
+    if (!containerRef.current) return;
 
-  componentDidUpdate(prevProps: MarkdownEditorProps) {
-    const { editable = true } = this.props;
-    if (prevProps.text !== this.props.text && this.editor && !editable) {
-      this.editor.setMarkdown(this.props.text);
-    }
-  }
-
-  componentWillUnmount() {
-    this.editor?.destroy();
-    this.editor = null;
-  }
-
-  private initEditor() {
-    if (!this.containerRef.current) return;
-
-    const { text, editable = true, height = "400px", minHeight } = this.props;
-
-    this.editor = Editor.factory({
-      el: this.containerRef.current,
+    const editor = Editor.factory({
+      el: containerRef.current,
       initialValue: text,
       viewer: !editable,
       height,
@@ -49,14 +36,24 @@ export class MarkdownEditor extends Component<MarkdownEditorProps> {
       initialEditType: "markdown",
       previewStyle: "vertical",
     });
-  }
+    editorRef.current = editor;
 
-  render() {
-    return (
-      <div
-        ref={this.containerRef}
-        className="rounded border border-zinc-200 bg-white p-4"
-      />
-    );
-  }
+    return () => {
+      editor.destroy();
+      editorRef.current = null;
+    };
+  }, []); // editor는 마운트 시 한 번만 초기화
+
+  useEffect(() => {
+    if (editorRef.current && !editable && text !== undefined) {
+      editorRef.current.setMarkdown(text);
+    }
+  }, [text, editable]);
+
+  return (
+    <div
+      ref={containerRef}
+      className="rounded border border-zinc-200 bg-white p-4"
+    />
+  );
 }

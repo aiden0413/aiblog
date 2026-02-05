@@ -1,15 +1,6 @@
 "use client";
 
-import { Component } from "react";
-import dynamic from "next/dynamic";
-
-const MarkdownEditor = dynamic(
-  () =>
-    import("@/app/(anon)/components/MarkdownEditor/MarkdownEditor").then(
-      (mod) => ({ default: mod.MarkdownEditor })
-    ),
-  { ssr: false }
-);
+import { MarkdownEditor } from "@/app/(anon)/components/MarkdownEditor/MarkdownEditor";
 
 const SAMPLE_MARKDOWN = `# 마크다운 에디터 테스트
 
@@ -114,12 +105,15 @@ print(factorial(5))  # 120
 아래에도 있습니다.
 `;
 
-export default class EditorTestPage extends Component {
-  render() {
-    return (
-      <main className="min-h-screen p-8">
-        <MarkdownEditor text={SAMPLE_MARKDOWN} editable height="600px" minHeight="400px" />
-      </main>
-    );
-  }
+export default function EditorTestPage() {
+  return (
+    <main className="min-h-screen p-8">
+      <MarkdownEditor
+        text={SAMPLE_MARKDOWN}
+        editable
+        height="600px"
+        minHeight="400px"
+      />
+    </main>
+  );
 }
