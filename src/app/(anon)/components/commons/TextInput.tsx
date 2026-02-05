@@ -31,16 +31,16 @@ export function TextInput({
     "h-10 w-full rounded border bg-white px-3 py-2 text-foreground outline-none transition-colors";
   const stateStyles = error
     ? "border-red-500 focus:border-red-600 focus:ring-2 focus:ring-red-200"
-    : "border-zinc-200 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200";
+    : "border-indigo-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200";
   const disabledStyles =
-    "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-zinc-50";
+    "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-indigo-50";
 
   return (
     <div>
       {label && (
         <label
           htmlFor={id}
-          className="block text-sm font-medium text-zinc-700 mb-1"
+          className="block text-sm font-medium text-black mb-1"
         >
           {label}
         </label>

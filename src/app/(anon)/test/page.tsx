@@ -2,9 +2,10 @@
 
 import { FormEvent, useState } from "react";
 import type { TemplateType } from "@/backend/applications/prompt/dtos/PromptRequestDto";
-import { TextInput } from "../components/TextInput/TextInput";
-import { Dropdown } from "../components/Dropdown/Dropdown";
-import { MarkdownEditor } from "../components/MarkdownEditor/MarkdownEditor";
+import { TextInput } from "../components/commons/TextInput";
+import { Dropdown } from "../components/commons/Dropdown";
+import { Button } from "../components/commons/Button";
+import { MarkdownEditor } from "../components/commons/MarkdownEditor";
 
 interface GenerateBlogResult {
   content: string;
@@ -105,20 +106,18 @@ export default function TestPage() {
             type="checkbox"
             checked={includeCode}
             onChange={(e) => setIncludeCode(e.target.checked)}
-            className="h-4 w-4 rounded border-zinc-300 text-blue-600 focus:ring-blue-500"
+            className="h-4 w-4 rounded border-indigo-500 text-indigo-500 focus:ring-indigo-500"
           />
-          <label htmlFor="includeCode" className="text-sm font-medium text-zinc-700">
+          <label htmlFor="includeCode" className="text-sm font-medium text-black">
             코드 포함
           </label>
         </div>
 
-        <button
+        <Button
+          text={loading ? "생성 중..." : "블로그 글 생성"}
           type="submit"
           disabled={loading}
-          className="rounded bg-blue-600 px-4 py-2 text-white font-medium hover:bg-blue-700 disabled:opacity-50 disabled:cursor-not-allowed"
-        >
-          {loading ? "생성 중..." : "블로그 글 생성"}
-        </button>
+        />
       </form>
 
       {error && (

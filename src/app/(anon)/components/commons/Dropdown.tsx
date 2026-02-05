@@ -51,16 +51,16 @@ export function Dropdown({
     "h-10 w-full rounded border bg-white px-3 py-2 text-foreground outline-none transition-colors";
   const stateStyles = error
     ? "border-red-500 focus:border-red-600 focus:ring-2 focus:ring-red-200"
-    : "border-zinc-200 focus:border-zinc-400 focus:ring-2 focus:ring-zinc-200";
+    : "border-indigo-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200";
   const disabledStyles =
-    "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-zinc-50";
+    "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-indigo-50";
 
   return (
     <div ref={containerRef} className="relative">
       {label && (
         <label
           htmlFor={id}
-          className="block text-sm font-medium text-zinc-700 mb-1"
+          className="block text-sm font-medium text-black mb-1"
         >
           {label}
         </label>
@@ -92,7 +92,7 @@ export function Dropdown({
       {isOpen && (
         <ul
           role="listbox"
-          className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded border border-zinc-200 bg-white shadow-lg"
+          className="absolute z-10 mt-1 max-h-60 w-full overflow-auto rounded border border-indigo-200 bg-white shadow-lg"
         >
           {options.map((opt) => (
             <li
@@ -103,7 +103,9 @@ export function Dropdown({
                 onChange({ target: { value: opt.value } } as ChangeEvent<HTMLSelectElement>);
                 setIsOpen(false);
               }}
-              className="cursor-pointer px-3 py-2 text-sm text-foreground transition-colors hover:bg-zinc-100"
+              className={`cursor-pointer px-3 py-2 text-sm text-foreground transition-colors hover:bg-indigo-100 ${
+                opt.value === value ? "bg-indigo-100" : ""
+              }`}
             >
               {opt.label}
             </li>

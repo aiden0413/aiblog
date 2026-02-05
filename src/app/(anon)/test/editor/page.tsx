@@ -1,6 +1,6 @@
 "use client";
 
-import { MarkdownEditor } from "@/app/(anon)/components/MarkdownEditor/MarkdownEditor";
+import { MarkdownEditor } from "@/app/(anon)/components/commons/MarkdownEditor";
 
 const SAMPLE_MARKDOWN = `# 마크다운 에디터 테스트
 
