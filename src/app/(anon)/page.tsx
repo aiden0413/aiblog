@@ -1,0 +1,25 @@
+import Link from "next/link";
+
+export default function Home() {
+  return (
+    <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-indigo-50 to-white px-6">
+      <div className="max-w-2xl w-full text-center space-y-8">
+        <h1 className="text-4xl font-bold text-black tracking-tight">
+          AI 블로그 글 생성
+        </h1>
+        <p className="text-lg text-gray-600 leading-relaxed">
+          주제와 키워드만 입력하면 튜토리얼, TIL, 트러블슈팅 형식의 블로그 글을
+          자동으로 작성해 드립니다.
+        </p>
+        <div className="pt-4">
+          <Link
+            href="/test"
+            className="inline-flex h-12 min-w-[180px] items-center justify-center rounded border border-indigo-500 bg-indigo-500 px-6 font-medium text-white transition-colors hover:bg-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2"
+          >
+            글 생성하러 가기
+          </Link>
+        </div>
+      </div>
+    </main>
+  );
+}
