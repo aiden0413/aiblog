@@ -25,11 +25,29 @@ export class OpenAIRepository implements PromptGenerateRepository {
       ],
     });
 
-    const content = completion.choices[0]?.message?.content ?? "";
-    if (!content) {
+    const rawContent = completion.choices[0]?.message?.content ?? "";
+    if (!rawContent) {
       throw new Error("OpenAI 응답에서 생성된 내용을 찾을 수 없습니다.");
     }
 
-    return { content };
+    const parsed = this.parseJsonResponse(rawContent);
+    return {
+      title: parsed.title ?? "",
+      content: parsed.content ?? "",
+      hashtags: Array.isArray(parsed.hashtags) ? parsed.hashtags : [],
+      metaDescription: parsed.metaDescription ?? "",
+    };
+  }
+
+  private parseJsonResponse(raw: string): Partial<OpenAIGenerateResult> {
+    const jsonMatch = raw.match(/\{[\s\S]*\}/);
+    if (!jsonMatch) {
+      throw new Error("JSON 형식의 응답을 파싱할 수 없습니다.");
+    }
+    try {
+      return JSON.parse(jsonMatch[0]) as Partial<OpenAIGenerateResult>;
+    } catch {
+      throw new Error("JSON 파싱에 실패했습니다.");
+    }
   }
 }

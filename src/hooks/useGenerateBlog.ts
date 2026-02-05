@@ -1,13 +1,13 @@
 "use client";
 
 import { useMutation } from "@tanstack/react-query";
-import type { PromptRequestDto } from "@/backend/applications/prompt/dtos/PromptRequestDto";
-import type { OpenAIGenerateResult } from "@/backend/domain/entities/OpenAIGenerateResult";
+import type { GenerateRequestDto } from "@/backend/applications/prompt/dtos/GenerateRequestDto";
+import type { GenerateResponseDto } from "@/backend/applications/prompt/dtos/GenerateResponseDto";
 
 export function useGenerateBlog() {
-  return useMutation<OpenAIGenerateResult, string, PromptRequestDto>({
-    mutationFn: async (params: PromptRequestDto) => {
-      const res = await fetch("/api/prompt", {
+  return useMutation<GenerateResponseDto, string, GenerateRequestDto>({
+    mutationFn: async (params: GenerateRequestDto) => {
+      const res = await fetch("/api/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(params),

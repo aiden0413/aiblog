@@ -1,24 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
 import { CreatePromptUsecase } from "@/backend/applications/prompt/usecases/CreatePromptUsecase";
 import { OpenAIRepository } from "@/backend/infrastructure/repository/OpenAIRepository";
-import type { PromptRequestDto, TemplateType } from "@/backend/applications/prompt/dtos/PromptRequestDto";
+import type {
+  GenerateRequestDto,
+  StyleType,
+} from "@/backend/applications/prompt/dtos/GenerateRequestDto";
 
-const TEMPLATE_TYPES: TemplateType[] = ["튜토리얼", "TIL", "트러블슈팅"];
+const STYLE_TYPES: StyleType[] = ["tutorial", "til", "troubleshooting"];
 
-function parseBody(body: unknown): PromptRequestDto | null {
+function parseBody(body: unknown): GenerateRequestDto | null {
   if (!body || typeof body !== "object") return null;
   const o = body as Record<string, unknown>;
   const topic = typeof o.topic === "string" ? o.topic.trim() : "";
-  const templateType = o.templateType as TemplateType | undefined;
-  const includeCode = typeof o.includeCode === "boolean" ? o.includeCode : false;
+  const style = o.style as StyleType | undefined;
   const keywords = Array.isArray(o.keywords)
     ? (o.keywords as unknown[]).filter((k): k is string => typeof k === "string")
     : [];
 
-  if (!topic || !TEMPLATE_TYPES.includes(templateType ?? ("" as TemplateType))) {
+  if (!topic || !STYLE_TYPES.includes(style ?? ("" as StyleType))) {
     return null;
   }
-  return { topic, keywords, templateType: templateType!, includeCode };
+  return { topic, keywords, style: style! };
 }
 
 export async function POST(request: NextRequest) {
@@ -29,7 +31,7 @@ export async function POST(request: NextRequest) {
       return NextResponse.json(
         {
           error:
-            "잘못된 요청입니다. topic, keywords, templateType(튜토리얼|TIL|트러블슈팅), includeCode를 확인해주세요.",
+            "잘못된 요청입니다. topic, keywords, style(tutorial|til|troubleshooting)를 확인해주세요.",
         },
         { status: 400 }
       );

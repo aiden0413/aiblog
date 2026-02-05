@@ -2,11 +2,9 @@
 
 import { FormEvent, useState } from "react";
 import dynamic from "next/dynamic";
-import type { TemplateType } from "@/backend/applications/prompt/dtos/PromptRequestDto";
+import type { StyleType } from "@/backend/applications/prompt/dtos/GenerateRequestDto";
 import { TextInput } from "../components/commons/TextInput";
-import { Dropdown } from "../components/commons/Dropdown";
 import { Button } from "../components/commons/Button";
-import { Checkbox } from "../components/commons/Checkbox";
 import { useGenerateBlog } from "@/hooks/useGenerateBlog";
 
 const MarkdownEditor = dynamic(
@@ -17,17 +15,16 @@ const MarkdownEditor = dynamic(
   { ssr: false }
 );
 
-const TEMPLATE_OPTIONS: { value: TemplateType; label: string }[] = [
-  { value: "튜토리얼", label: "튜토리얼" },
-  { value: "TIL", label: "TIL" },
-  { value: "트러블슈팅", label: "트러블슈팅" },
+const STYLE_OPTIONS: { value: StyleType; label: string }[] = [
+  { value: "tutorial", label: "튜토리얼" },
+  { value: "til", label: "TIL" },
+  { value: "troubleshooting", label: "트러블슈팅" },
 ];
 
 export default function TestPage() {
   const [topic, setTopic] = useState("");
   const [keywordsInput, setKeywordsInput] = useState("");
-  const [templateType, setTemplateType] = useState<TemplateType>("튜토리얼");
-  const [includeCode, setIncludeCode] = useState(false);
+  const [style, setStyle] = useState<StyleType>("tutorial");
 
   const { mutate, data: result, error, isPending } = useGenerateBlog();
 
@@ -42,8 +39,7 @@ export default function TestPage() {
     mutate({
       topic: topic.trim(),
       keywords,
-      templateType,
-      includeCode,
+      style,
     });
   };
 
@@ -51,17 +47,17 @@ export default function TestPage() {
     <main className="min-h-screen p-8 max-w-7xl mx-auto">
       <h1 className="text-2xl font-bold">블로그 글 생성 API 테스트</h1>
       <p className="mt-2 text-zinc-600 mb-8">
-        제목, 키워드, 타입, 코드 포함 여부를 입력 후 API를 호출해 블로그 글을 생성하세요.
+        주제, 키워드, 글 스타일을 입력 후 API를 호출해 블로그 글을 생성하세요.
       </p>
 
       <form onSubmit={handleSubmit} className="space-y-6">
         <TextInput
           id="topic"
-          label="제목"
+          label="블로그 주제"
           type="text"
           value={topic}
           onChange={(e) => setTopic(e.target.value)}
-          placeholder="예: Next.js App Router 사용법"
+          placeholder="예: React useState 훅 사용법"
           required
         />
 
@@ -71,23 +67,28 @@ export default function TestPage() {
           type="text"
           value={keywordsInput}
           onChange={(e) => setKeywordsInput(e.target.value)}
-          placeholder="예: Next.js, React, 라우팅"
+          placeholder="예: React, Hooks, 상태관리"
         />
 
-        <Dropdown
-          id="templateType"
-          label="글 템플릿 유형"
-          options={TEMPLATE_OPTIONS}
-          value={templateType}
-          onChange={(e) => setTemplateType(e.target.value as TemplateType)}
-        />
-
-        <Checkbox
-          id="includeCode"
-          label="코드 포함"
-          checked={includeCode}
-          onChange={(e) => setIncludeCode(e.target.checked)}
-        />
+        <div className="space-y-2">
+          <label className="block text-sm font-medium text-zinc-700">글 스타일</label>
+          <div className="flex gap-6 w-full">
+            {STYLE_OPTIONS.map((opt) => (
+              <button
+                key={opt.value}
+                type="button"
+                onClick={() => setStyle(opt.value)}
+                className={`flex-1 px-4 py-3 rounded-md text-sm font-medium transition-colors ${
+                  style === opt.value
+                    ? "bg-indigo-600 text-white"
+                    : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100"
+                }`}
+              >
+                {opt.label}
+              </button>
+            ))}
+          </div>
+        </div>
 
         <Button
           text={isPending ? "생성 중..." : "블로그 글 생성"}
@@ -105,6 +106,17 @@ export default function TestPage() {
       {result && (
         <div className="mt-8 space-y-6">
           <h2 className="text-lg font-semibold text-zinc-800">생성된 블로그 글</h2>
+          <div className="space-y-2">
+            <p className="text-xl font-medium text-zinc-900">{result.title}</p>
+            {result.metaDescription && (
+              <p className="text-sm text-zinc-600">{result.metaDescription}</p>
+            )}
+            {result.hashtags.length > 0 && (
+              <p className="text-sm text-blue-600">
+                {result.hashtags.map((tag) => `#${tag}`).join(" ")}
+              </p>
+            )}
+          </div>
           <MarkdownEditor
             text={result.content}
             editable={true}
