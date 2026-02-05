@@ -1,15 +1,21 @@
 "use client";
 
 import { FormEvent, useState } from "react";
+import dynamic from "next/dynamic";
 import type { TemplateType } from "@/backend/applications/prompt/dtos/PromptRequestDto";
 import { TextInput } from "../components/commons/TextInput";
 import { Dropdown } from "../components/commons/Dropdown";
 import { Button } from "../components/commons/Button";
-import { MarkdownEditor } from "../components/commons/MarkdownEditor";
+import { Checkbox } from "../components/commons/Checkbox";
+import { useGenerateBlog } from "@/hooks/useGenerateBlog";
 
-interface GenerateBlogResult {
-  content: string;
-}
+const MarkdownEditor = dynamic(
+  () =>
+    import("../components/commons/MarkdownEditor").then((mod) => ({
+      default: mod.MarkdownEditor,
+    })),
+  { ssr: false }
+);
 
 const TEMPLATE_OPTIONS: { value: TemplateType; label: string }[] = [
   { value: "튜토리얼", label: "튜토리얼" },
@@ -22,47 +28,23 @@ export default function TestPage() {
   const [keywordsInput, setKeywordsInput] = useState("");
   const [templateType, setTemplateType] = useState<TemplateType>("튜토리얼");
   const [includeCode, setIncludeCode] = useState(false);
-  const [result, setResult] = useState<GenerateBlogResult | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(false);
 
-  const handleSubmit = async (e: FormEvent<HTMLFormElement>) => {
+  const { mutate, data: result, error, isPending } = useGenerateBlog();
+
+  const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    setError(null);
-    setResult(null);
-    setLoading(true);
 
     const keywords = keywordsInput
       .split(",")
       .map((k) => k.trim())
       .filter(Boolean);
 
-    try {
-      const res = await fetch("/api/prompt", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          topic: topic.trim(),
-          keywords,
-          templateType,
-          includeCode,
-        }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        setError(data.error ?? "요청 실패");
-        setLoading(false);
-        return;
-      }
-
-      setResult(data);
-    } catch (err) {
-      setError(err instanceof Error ? err.message : "요청 중 오류 발생");
-    } finally {
-      setLoading(false);
-    }
+    mutate({
+      topic: topic.trim(),
+      keywords,
+      templateType,
+      includeCode,
+    });
   };
 
   return (
@@ -100,23 +82,17 @@ export default function TestPage() {
           onChange={(e) => setTemplateType(e.target.value as TemplateType)}
         />
 
-        <div className="flex items-center gap-2">
-          <input
-            id="includeCode"
-            type="checkbox"
-            checked={includeCode}
-            onChange={(e) => setIncludeCode(e.target.checked)}
-            className="h-4 w-4 rounded border-indigo-500 text-indigo-500 focus:ring-indigo-500"
-          />
-          <label htmlFor="includeCode" className="text-sm font-medium text-black">
-            코드 포함
-          </label>
-        </div>
+        <Checkbox
+          id="includeCode"
+          label="코드 포함"
+          checked={includeCode}
+          onChange={(e) => setIncludeCode(e.target.checked)}
+        />
 
         <Button
-          text={loading ? "생성 중..." : "블로그 글 생성"}
+          text={isPending ? "생성 중..." : "블로그 글 생성"}
           type="submit"
-          disabled={loading}
+          disabled={isPending}
         />
       </form>
 
