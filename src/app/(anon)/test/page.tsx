@@ -78,7 +78,7 @@ export default function TestPage() {
                 key={opt.value}
                 type="button"
                 onClick={() => setStyle(opt.value)}
-                className={`flex-1 px-4 py-3 rounded-md text-sm font-medium transition-colors ${
+                className={`flex-1 px-4 py-3 rounded-md text-sm font-medium ${
                   style === opt.value
                     ? "bg-indigo-600 text-white"
                     : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100"

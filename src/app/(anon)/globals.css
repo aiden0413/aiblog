@@ -1,5 +1,14 @@
 @import "tailwindcss";
 
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* 테마 전환 시 즉시 변경 (스르륵 방지) */
+*,
+*::before,
+*::after {
+  transition-duration: 0s !important;
+}
+
 :root {
   --background: #ffffff;
   --foreground: #171717;
@@ -14,10 +23,20 @@
 }
 
 @media (prefers-color-scheme: dark) {
-  :root {
+  :root:not(.light) {
     --background: #0a0a0a;
     --foreground: #ededed;
   }
+}
+
+.dark {
+  --background: #0a0a0a;
+  --foreground: #ededed;
+}
+
+html,
+body {
+  transition: none;
 }
 
 body {

@@ -53,7 +53,7 @@ export function MarkdownEditor({
   return (
     <div
       ref={containerRef}
-      className="rounded border border-zinc-200 bg-white p-4"
+      className="rounded border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900"
     />
   );
 }

@@ -48,7 +48,7 @@ export function Dropdown({
   const displayLabel = selectedOption?.label ?? "";
 
   const baseStyles =
-    "h-10 w-full rounded border bg-white px-3 py-2 text-foreground outline-none transition-colors";
+    "h-10 w-full rounded border bg-white px-3 py-2 text-foreground outline-none";
   const stateStyles = error
     ? "border-red-500 focus:border-red-600 focus:ring-2 focus:ring-red-200"
     : "border-indigo-200 focus:border-indigo-500 focus:ring-2 focus:ring-indigo-200";
@@ -103,7 +103,7 @@ export function Dropdown({
                 onChange({ target: { value: opt.value } } as ChangeEvent<HTMLSelectElement>);
                 setIsOpen(false);
               }}
-              className={`cursor-pointer px-3 py-2 text-sm text-foreground transition-colors hover:bg-indigo-100 ${
+              className={`cursor-pointer px-3 py-2 text-sm text-foreground hover:bg-indigo-100 ${
                 opt.value === value ? "bg-indigo-100" : ""
               }`}
             >
