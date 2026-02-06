@@ -1,9 +1,11 @@
 "use client";
 
 import { useEffect, useRef } from "react";
+import { useTheme } from "next-themes";
 import Editor from "@toast-ui/editor";
 import "@toast-ui/editor/dist/toastui-editor.css";
 import "@toast-ui/editor/dist/toastui-editor-viewer.css";
+import "@toast-ui/editor/dist/theme/toastui-editor-dark.css";
 
 interface MarkdownEditorProps {
   text: string;
@@ -21,8 +23,10 @@ export function MarkdownEditor({
   height = "400px",
   minHeight,
 }: MarkdownEditorProps) {
+  const { resolvedTheme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<ReturnType<typeof Editor.factory> | null>(null);
+  const isDark = resolvedTheme === "dark";
 
   useEffect(() => {
     if (!containerRef.current) return;
@@ -53,7 +57,7 @@ export function MarkdownEditor({
   return (
     <div
       ref={containerRef}
-      className="rounded border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900"
+      className={`rounded border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900 ${isDark ? "toastui-editor-dark" : ""}`}
     />
   );
 }

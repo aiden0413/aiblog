@@ -22,7 +22,10 @@ export function Button({
     <button
       type={type}
       disabled={disabled}
-      onClick={onClick}
+      onClick={(e) => {
+        onClick?.();
+        e.currentTarget.blur();
+      }}
       className={`${baseStyles} ${className}`.trim()}
     >
       {text}

@@ -8,7 +8,7 @@ export function Header() {
 
   return (
     <header className="w-full border-b border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
-      <div className="mx-auto flex h-16 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
+      <div className="mx-auto flex h-20 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="text-lg font-bold text-zinc-900 dark:text-white">
           AI 블로그
         </Link>

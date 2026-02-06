@@ -33,7 +33,12 @@ export function InputSection({
   isPending,
 }: InputSectionProps) {
   return (
-    <form onSubmit={onSubmit} className="space-y-6">
+    <>
+      <h1 className="text-xl font-bold text-zinc-900 dark:text-white">블로그 글 생성</h1>
+      <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 mb-6">
+        주제, 키워드, 글 스타일을 입력 후 생성 버튼을 누르세요.
+      </p>
+      <form onSubmit={onSubmit} className="space-y-6">
       <TextInput
         id="topic"
         label="블로그 주제"
@@ -83,5 +88,6 @@ export function InputSection({
         />
       </div>
     </form>
+    </>
   );
 }
