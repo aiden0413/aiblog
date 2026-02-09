@@ -2,8 +2,22 @@
 
 import { useState } from "react";
 import dynamic from "next/dynamic";
+import { marked } from "marked";
 import type { GenerateResponseDto } from "@/backend/applications/prompt/dtos/GenerateResponseDto";
 import { Button } from "../../components/commons/Button";
+
+function sanitizeFileName(name: string): string {
+  return name.replace(/[/\\:*?"<>|]/g, "").trim() || "download";
+}
+
+function downloadBlob(blob: Blob, filename: string): void {
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement("a");
+  a.href = url;
+  a.download = filename;
+  a.click();
+  URL.revokeObjectURL(url);
+}
 
 const MarkdownEditor = dynamic(
   () =>
@@ -30,6 +44,51 @@ export function ResultSection({ result, isPending = false }: ResultSectionProps)
     setShowCopiedToast(true);
     setTimeout(() => setShowCopiedToast(false), 2000);
   };
+
+  const handleMdDownload = (content: string, title: string) => {
+    const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
+    const filename = `${sanitizeFileName(title)}.md`;
+    downloadBlob(blob, filename);
+  };
+
+  const handleHtmlDownload = (
+    content: string,
+    title: string,
+    metaDescription: string
+  ) => {
+    const bodyHtml = marked.parse(content, { async: false }) as string;
+    const desc = escapeHtml(metaDescription || "");
+    const html = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="${desc}" />
+  <meta property="og:title" content="${escapeHtml(title)}" />
+  <meta property="og:description" content="${desc}" />
+  <meta property="og:type" content="article" />
+  <title>${escapeHtml(title)}</title>
+</head>
+<body>
+${bodyHtml}
+</body>
+</html>`;
+    const blob = new Blob([html], { type: "text/html;charset=utf-8" });
+    const filename = `${sanitizeFileName(title)}.html`;
+    downloadBlob(blob, filename);
+  };
+
+  function escapeHtml(text: string): string {
+    const map: Record<string, string> = {
+      "&": "&amp;",
+      "<": "&lt;",
+      ">": "&gt;",
+      '"': "&quot;",
+      "'": "&#039;",
+    };
+    return text.replace(/[&<>"']/g, (ch) => map[ch] ?? ch);
+  }
+
   return (
     <section className="flex-1 min-w-0 p-6 bg-zinc-50 dark:bg-zinc-950 relative">
       {showCopiedToast && (
@@ -134,8 +193,20 @@ export function ResultSection({ result, isPending = false }: ResultSectionProps)
             </div>
             <div className="flex gap-2 shrink-0 pt-2">
               <Button text="내용 복사" onClick={() => handleCopy(result.content)} />
-              <Button text="MD 다운로드" />
-              <Button text="HTML 다운로드" />
+              <Button
+                text="MD 다운로드"
+                onClick={() => handleMdDownload(result.content, result.title)}
+              />
+              <Button
+                text="HTML 다운로드"
+                onClick={() =>
+                  handleHtmlDownload(
+                    result.content,
+                    result.title,
+                    result.metaDescription
+                  )
+                }
+              />
             </div>
           </div>
         </div>
