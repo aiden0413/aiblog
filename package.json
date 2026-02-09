@@ -11,6 +11,7 @@
   "dependencies": {
     "@tanstack/react-query": "^5.90.20",
     "@toast-ui/editor": "^3.2.2",
+    "@toast-ui/editor-plugin-code-syntax-highlight": "^3.1.0",
     "next": "16.1.6",
     "next-themes": "^0.4.6",
     "openai": "^6.17.0",
@@ -20,6 +21,7 @@
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
     "@types/node": "^20",
+    "@types/prismjs": "^1.26.5",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",

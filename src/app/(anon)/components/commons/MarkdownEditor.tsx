@@ -6,6 +6,18 @@ import Editor from "@toast-ui/editor";
 import "@toast-ui/editor/dist/toastui-editor.css";
 import "@toast-ui/editor/dist/toastui-editor-viewer.css";
 import "@toast-ui/editor/dist/theme/toastui-editor-dark.css";
+import Prism from "prismjs";
+import "prismjs/themes/prism.css";
+import "prismjs/components/prism-javascript";
+import "prismjs/components/prism-typescript";
+import "prismjs/components/prism-jsx";
+import "prismjs/components/prism-tsx";
+import "prismjs/components/prism-css";
+import "prismjs/components/prism-json";
+import "prismjs/components/prism-bash";
+import "prismjs/components/prism-markdown";
+import "@toast-ui/editor-plugin-code-syntax-highlight/dist/toastui-editor-plugin-code-syntax-highlight.css";
+import codeSyntaxHighlight from "@toast-ui/editor-plugin-code-syntax-highlight";
 
 interface MarkdownEditorProps {
   text: string;
@@ -39,6 +51,7 @@ export function MarkdownEditor({
       minHeight,
       initialEditType: "markdown",
       previewStyle: "vertical",
+      plugins: [[codeSyntaxHighlight, { highlighter: Prism }]],
     });
     editorRef.current = editor;
 

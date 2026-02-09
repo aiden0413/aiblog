@@ -23,6 +23,7 @@ export class OpenAIRepository implements PromptGenerateRepository {
         { role: "system", content: systemContent },
         { role: "user", content: userContent },
       ],
+      max_tokens: 4096,
     });
 
     const rawContent = completion.choices[0]?.message?.content ?? "";

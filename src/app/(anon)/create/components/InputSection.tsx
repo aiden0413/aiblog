@@ -56,6 +56,7 @@ export function InputSection({
         value={keywordsInput}
         onChange={(e) => onKeywordsChange(e.target.value)}
         placeholder="예: React, Hooks, 상태관리"
+        required
       />
 
       <div className="space-y-2">

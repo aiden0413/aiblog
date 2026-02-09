@@ -1,4 +1,6 @@
 declare module "@toast-ui/editor" {
+  type EditorPlugin = unknown;
+
   interface EditorOptions {
     el: HTMLElement;
     initialValue?: string;
@@ -7,6 +9,7 @@ declare module "@toast-ui/editor" {
     minHeight?: string;
     initialEditType?: "markdown" | "wysiwyg";
     previewStyle?: "vertical" | "tab";
+    plugins?: EditorPlugin[];
   }
 
   interface EditorInstance {
