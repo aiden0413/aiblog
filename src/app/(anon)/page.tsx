@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-b from-indigo-50 to-white px-6 dark:from-zinc-900 dark:to-zinc-950">
+    <main className="h-[calc(100vh-81px)] flex flex-col items-center justify-center bg-gradient-to-b from-indigo-50 to-white px-6 dark:from-zinc-900 dark:to-zinc-950 overflow-x-hidden overflow-y-auto">
       <div className="max-w-2xl w-full text-center space-y-8">
         <h1 className="text-4xl font-bold text-black tracking-tight dark:text-white">
           AI 블로그 글 생성
