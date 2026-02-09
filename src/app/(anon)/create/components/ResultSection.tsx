@@ -90,12 +90,13 @@ ${bodyHtml}
   }
 
   return (
-    <section className="flex-1 min-w-0 p-6 bg-zinc-50 dark:bg-zinc-950 relative">
+    <section className="flex-1 min-w-0 min-h-0 flex flex-col bg-zinc-50 dark:bg-zinc-950 relative md:h-full max-h-[calc(100vh-81px-120px)] md:max-h-none">
       {showCopiedToast && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-lg dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
           복사되었습니다
         </div>
       )}
+      <div className="p-6 flex-1 min-h-0 overflow-y-auto">
       {isPending ? (
         <div className="h-full flex flex-col items-center justify-center gap-4">
           <div
@@ -105,7 +106,7 @@ ${bodyHtml}
           <p className="text-sm text-zinc-500 dark:text-zinc-400">블로그 글을 생성하고 있습니다...</p>
         </div>
       ) : result ? (
-        <div className="h-full flex flex-col space-y-4">
+        <div className="flex flex-col space-y-4">
           <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200 shrink-0">
             생성된 블로그 글
           </h2>
@@ -177,7 +178,7 @@ ${bodyHtml}
             </div>
           </div>
 
-          <div className="flex-1 min-h-[400px] flex flex-col min-w-0">
+          <div className="min-h-[400px] flex flex-col min-w-0">
             <div className="mb-2 shrink-0">
               <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
                 내용
@@ -212,9 +213,10 @@ ${bodyHtml}
         </div>
       ) : (
         <div className="h-full flex items-center justify-center text-zinc-400 dark:text-zinc-500 text-sm">
-          왼쪽에서 주제와 키워드를 입력한 뒤 생성 버튼을 눌러주세요.
+          주제와 키워드를 입력한 뒤 생성 버튼을 눌러주세요.
         </div>
       )}
+      </div>
     </section>
   );
 }

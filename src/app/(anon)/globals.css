@@ -2,10 +2,10 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
-/* 테마 전환 시 즉시 변경 (스르륵 방지) */
-*,
-*::before,
-*::after {
+/* 테마 전환 시 즉시 변경. data-allow-transition 속성이 있는 요소는 전환 애니메이션 허용 */
+*:not([data-allow-transition]):not([data-allow-transition] *),
+*:not([data-allow-transition]):not([data-allow-transition] *)::before,
+*:not([data-allow-transition]):not([data-allow-transition] *)::after {
   transition-duration: 0s !important;
 }
 
