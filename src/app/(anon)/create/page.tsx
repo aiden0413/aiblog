@@ -2,11 +2,17 @@
 
 import { FormEvent, useState } from "react";
 import type { StyleType } from "@/backend/applications/prompt/dtos/GenerateRequestDto";
+import type { GenerateResponseDto } from "@/backend/applications/prompt/dtos/GenerateResponseDto";
 import { useGenerateBlog } from "@/hooks/useGenerateBlog";
+import { getHistory, addHistoryItem, removeHistoryItemAtIndex } from "@/lib/blogHistory";
+import type { BlogHistoryItem } from "@/lib/blogHistory";
 import type { InputSectionProps } from "./components/InputSection";
 import { InputSection } from "./components/InputSection";
 import { ResultSection } from "./components/ResultSection";
+import { HistoryPanel } from "./components/HistoryPanel";
 import { Button } from "../components/commons/Button";
+import { HiChevronUp, HiChevronDown } from "react-icons/hi";
+import { MdHistory } from "react-icons/md";
 
 const MOBILE_FORM_ID = "create-blog-form-mobile";
 const MOBILE_CLOSED_HEIGHT = 48;
@@ -16,8 +22,16 @@ export default function CreatePage() {
   const [keywordsInput, setKeywordsInput] = useState("");
   const [style, setStyle] = useState<StyleType>("tutorial");
   const [isInputOpen, setIsInputOpen] = useState(false);
+  const [isHistoryOpen, setIsHistoryOpen] = useState(false);
+  const [historyItems, setHistoryItems] = useState(() => getHistory());
+  /** 히스토리에서 선택한 결과 (클릭 시 ResultSection에 표시) */
+  const [selectedHistoryResult, setSelectedHistoryResult] = useState<
+    GenerateResponseDto | null
+  >(null);
+  /** 히스토리 선택 시 스크롤 맨 위로 (같은 항목 재선택 시에도 동작) */
+  const [scrollToTopTrigger, setScrollToTopTrigger] = useState(0);
 
-  const { mutate, data: result, error, isPending } = useGenerateBlog();
+  const { mutate, data: result, isPending } = useGenerateBlog();
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -27,12 +41,43 @@ export default function CreatePage() {
       .map((k) => k.trim())
       .filter(Boolean);
 
-    mutate({
-      topic: topic.trim(),
-      keywords,
-      style,
-    });
+    setSelectedHistoryResult(null);
+
+    mutate(
+      {
+        topic: topic.trim(),
+        keywords,
+        style,
+      },
+      {
+        onSuccess: (responseData) => {
+          addHistoryItem({
+            topic: topic.trim(),
+            keywords,
+            style,
+            result: responseData,
+          });
+          setHistoryItems(getHistory());
+        },
+      }
+    );
     setIsInputOpen(false);
+  };
+
+  /** ResultSection에 보여줄 결과: 히스토리 선택 시 그 결과, 없으면 최근 API 응답 */
+  const displayResult = selectedHistoryResult ?? result ?? undefined;
+
+  const handleSelectHistoryItem = (item: BlogHistoryItem) => {
+    if (item.result) {
+      setSelectedHistoryResult(item.result);
+      setScrollToTopTrigger((t) => t + 1);
+      setIsHistoryOpen(false);
+    }
+  };
+
+  const handleRemoveHistoryItem = (index: number) => {
+    removeHistoryItemAtIndex(index);
+    setHistoryItems(getHistory());
   };
 
   const inputSectionProps: InputSectionProps = {
@@ -69,14 +114,11 @@ export default function CreatePage() {
           className="shrink-0 h-12 flex flex-col items-center justify-center bg-zinc-100 dark:bg-zinc-800"
           aria-label={isInputOpen ? "입력 영역 접기" : "입력 영역 펼치기"}
         >
-          <span
-            className="text-zinc-600 dark:text-zinc-400 text-sm font-medium leading-none"
-            style={{
-              transform: isInputOpen ? "rotate(-90deg)" : "rotate(90deg)",
-            }}
-          >
-            ‹
-          </span>
+          {isInputOpen ? (
+            <HiChevronDown className="h-6 w-6 text-zinc-600 dark:text-zinc-400" />
+          ) : (
+            <HiChevronUp className="h-6 w-6 text-zinc-600 dark:text-zinc-400" />
+          )}
         </button>
         <div
           className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden p-6 pb-24 transition-[max-height] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]"
@@ -94,7 +136,7 @@ export default function CreatePage() {
         </div>
       </div>
       <div
-        className="fixed left-0 right-0 bottom-0 z-40 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:hidden dark:bg-zinc-900"
+        className="fixed left-0 right-0 bottom-0 z-40 flex gap-2 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:hidden dark:bg-zinc-900"
         style={{ width: "100%" }}
       >
         <Button
@@ -102,12 +144,52 @@ export default function CreatePage() {
           type="submit"
           form={MOBILE_FORM_ID}
           disabled={isPending}
-          className="w-full"
+          className="flex-1 min-w-0"
         />
+        <button
+          type="button"
+          onClick={() => setIsHistoryOpen((prev) => !prev)}
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded text-zinc-600 outline-none hover:bg-zinc-100 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white dark:focus:ring-purple-600"
+          aria-label="히스토리"
+        >
+          <MdHistory className="h-5 w-5" />
+        </button>
       </div>
 
-      {/* 결과 영역 */}
-      <ResultSection result={result} isPending={isPending} />
+      {/* PC: ResultSection 오른쪽 위, 헤더 밑 고정 히스토리 버튼 */}
+      <button
+        type="button"
+        onClick={() => setIsHistoryOpen((prev) => !prev)}
+        className="fixed top-24 right-4 z-30 hidden md:inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 shadow-sm outline-none hover:bg-zinc-50 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-purple-600"
+        aria-label="히스토리"
+      >
+        <MdHistory className="h-5 w-5" />
+      </button>
+
+      <HistoryPanel
+        isOpen={isHistoryOpen}
+        onClose={() => setIsHistoryOpen(false)}
+        items={historyItems}
+        onSelectItem={handleSelectHistoryItem}
+        onRemoveItem={handleRemoveHistoryItem}
+      />
+
+      {/* 결과 영역: 패널 열림 시 음영 오버레이, 클릭하면 패널 닫힘 */}
+      <div className="relative flex-1 min-w-0 min-h-0 flex flex-col">
+        {isHistoryOpen && (
+          <button
+            type="button"
+            onClick={() => setIsHistoryOpen(false)}
+            className="absolute top-0 left-0 right-0 bottom-[4.5rem] md:bottom-0 z-40 bg-black/30"
+            aria-label="히스토리 패널 닫기"
+          />
+        )}
+        <ResultSection
+          result={displayResult}
+          isPending={isPending}
+          scrollToTopTrigger={scrollToTopTrigger}
+        />
+      </div>
     </main>
   );
 }

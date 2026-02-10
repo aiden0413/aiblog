@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import dynamic from "next/dynamic";
 import { marked } from "marked";
 import type { GenerateResponseDto } from "@/backend/applications/prompt/dtos/GenerateResponseDto";
@@ -30,14 +30,27 @@ const MarkdownEditor = dynamic(
 export interface ResultSectionProps {
   result: GenerateResponseDto | undefined;
   isPending?: boolean;
+  /** 변경될 때마다 스크롤을 맨 위로 (같은 항목 재선택 시에도 동작) */
+  scrollToTopTrigger?: number;
 }
 
 function copyToClipboard(text: string): Promise<void> {
   return navigator.clipboard.writeText(text);
 }
 
-export function ResultSection({ result, isPending = false }: ResultSectionProps) {
+export function ResultSection({
+  result,
+  isPending = false,
+  scrollToTopTrigger = 0,
+}: ResultSectionProps) {
   const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
+  const scrollContainerRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (result) {
+      scrollContainerRef.current?.scrollTo({ top: 0 });
+    }
+  }, [result, scrollToTopTrigger]);
 
   const handleCopy = async (text: string, label: string) => {
     await copyToClipboard(text);
@@ -96,7 +109,10 @@ ${bodyHtml}
           {copiedLabel} 복사됨
         </div>
       )}
-      <div className="p-6 flex-1 min-h-0 overflow-x-hidden overflow-y-auto">
+      <div
+        ref={scrollContainerRef}
+        className="p-6 flex-1 min-h-0 overflow-x-hidden overflow-y-auto"
+      >
       {isPending ? (
         <div className="h-full flex flex-col items-center justify-center gap-4">
           <div
