@@ -37,12 +37,12 @@ function copyToClipboard(text: string): Promise<void> {
 }
 
 export function ResultSection({ result, isPending = false }: ResultSectionProps) {
-  const [showCopiedToast, setShowCopiedToast] = useState(false);
+  const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
 
-  const handleCopy = async (text: string) => {
+  const handleCopy = async (text: string, label: string) => {
     await copyToClipboard(text);
-    setShowCopiedToast(true);
-    setTimeout(() => setShowCopiedToast(false), 2000);
+    setCopiedLabel(label);
+    setTimeout(() => setCopiedLabel(null), 2000);
   };
 
   const handleMdDownload = (content: string, title: string) => {
@@ -90,17 +90,17 @@ ${bodyHtml}
   }
 
   return (
-    <section className="flex-1 min-w-0 min-h-0 flex flex-col bg-zinc-50 dark:bg-zinc-950 relative md:h-full max-h-[calc(100vh-81px-120px)] md:max-h-none">
-      {showCopiedToast && (
+    <section className="flex-1 min-w-0 min-h-0 flex flex-col overflow-x-hidden bg-zinc-50 dark:bg-zinc-950 relative md:h-full max-h-[calc(100vh-81px-120px)] md:max-h-none">
+      {copiedLabel !== null && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-lg dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
-          복사되었습니다
+          {copiedLabel} 복사됨
         </div>
       )}
-      <div className="p-6 flex-1 min-h-0 overflow-y-auto">
+      <div className="p-6 flex-1 min-h-0 overflow-x-hidden overflow-y-auto">
       {isPending ? (
         <div className="h-full flex flex-col items-center justify-center gap-4">
           <div
-            className="h-12 w-12 animate-spin rounded-full border-4 border-zinc-200 border-t-indigo-500 dark:border-zinc-700 dark:border-t-indigo-500"
+            className="h-12 w-12 animate-spin rounded-full border-4 border-zinc-200 border-t-purple-500 dark:border-zinc-700 dark:border-t-purple-500"
             aria-label="로딩 중"
           />
           <p className="text-sm text-zinc-500 dark:text-zinc-400">블로그 글을 생성하고 있습니다...</p>
@@ -112,69 +112,56 @@ ${bodyHtml}
           </h2>
 
           <div className="space-y-4 shrink-0">
-            <div className="flex items-end gap-2">
-              <div className="flex-1 min-w-0">
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                  주제
-                </label>
-                <input
-                  type="text"
-                  readOnly
-                  value={result.title}
-                  className="h-10 w-full rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 outline-none cursor-default dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100"
-                />
-              </div>
-              <Button
-                text="주제 복사"
-                onClick={() => handleCopy(result.title)}
-                className="shrink-0"
-              />
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                <span>주제</span>
+                <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">(클릭 시 복사)</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => handleCopy(result.title, "주제")}
+                className="min-h-10 w-full rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-900 text-left outline-none cursor-pointer break-words hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:hover:bg-zinc-700"
+                title="클릭하면 복사됩니다"
+                aria-label="주제 복사"
+              >
+                {result.title}
+              </button>
             </div>
 
-            <div className="flex items-end gap-2">
-              <div className="flex-1 min-w-0">
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                  seo메타
-                </label>
-                <input
-                  type="text"
-                  readOnly
-                  value={result.metaDescription || ""}
-                  placeholder="-"
-                  className="h-10 w-full rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-600 outline-none cursor-default dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
-                />
-              </div>
-              <Button
-                text="seo메타 복사"
-                onClick={() => handleCopy(result.metaDescription)}
-                className="shrink-0"
-              />
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                <span>seo메타</span>
+                <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">(클릭 시 복사)</span>
+              </label>
+              <button
+                type="button"
+                onClick={() => handleCopy(result.metaDescription ?? "", "seo메타")}
+                className="min-h-10 w-full rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-zinc-600 text-left outline-none cursor-pointer break-words hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700"
+                title="클릭하면 복사됩니다"
+                aria-label="seo메타 복사"
+              >
+                {result.metaDescription || "-"}
+              </button>
             </div>
 
-            <div className="flex items-end gap-2">
-              <div className="flex-1 min-w-0">
-                <label className="block text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
-                  해시태그
-                </label>
-                <input
-                  type="text"
-                  readOnly
-                  value={
-                    result.hashtags.length > 0
-                      ? result.hashtags.map((tag) => `#${tag}`).join(" ")
-                      : ""
-                  }
-                  placeholder="-"
-                  className="h-10 w-full rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-blue-600 outline-none cursor-default dark:border-zinc-600 dark:bg-zinc-800 dark:text-blue-400"
-                />
-              </div>
-              <Button
-                text="해시태그 복사"
+            <div>
+              <label className="flex items-center gap-2 text-sm font-medium text-zinc-700 dark:text-zinc-300 mb-1">
+                <span>해시태그</span>
+                <span className="text-xs font-normal text-zinc-500 dark:text-zinc-400">(클릭 시 복사)</span>
+              </label>
+              <button
+                type="button"
                 onClick={() =>
-                  handleCopy(result.hashtags.map((tag) => `#${tag}`).join(" "))
+                  handleCopy(result.hashtags.map((tag) => `#${tag}`).join(" "), "해시태그")
                 }
-                className="shrink-0"
-              />
+                className="min-h-10 w-full rounded border border-zinc-200 bg-zinc-50 px-3 py-2 text-sm text-blue-600 text-left outline-none cursor-pointer break-words hover:bg-zinc-100 dark:border-zinc-600 dark:bg-zinc-800 dark:text-blue-400 dark:hover:bg-zinc-700"
+                title="클릭하면 복사됩니다"
+                aria-label="해시태그 복사"
+              >
+                {result.hashtags.length > 0
+                  ? result.hashtags.map((tag) => `#${tag}`).join(" ")
+                  : "-"}
+              </button>
             </div>
           </div>
 
@@ -184,7 +171,7 @@ ${bodyHtml}
                 내용
               </label>
             </div>
-            <div className="flex-1 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-hidden">
+            <div className="flex-1 min-w-0 rounded border border-zinc-200 dark:border-zinc-700 bg-white dark:bg-zinc-900 overflow-hidden">
               <MarkdownEditor
                 text={result.content}
                 editable={true}
@@ -193,13 +180,20 @@ ${bodyHtml}
               />
             </div>
             <div className="flex gap-2 shrink-0 pt-2">
-              <Button text="내용 복사" onClick={() => handleCopy(result.content)} />
               <Button
-                text="MD 다운로드"
-                onClick={() => handleMdDownload(result.content, result.title)}
+                text="복사"
+                onClick={() => handleCopy(result.content, "내용")}
+                title="내용 복사"
+                style={{ minWidth: "5rem" }}
               />
               <Button
-                text="HTML 다운로드"
+                text="MD"
+                onClick={() => handleMdDownload(result.content, result.title)}
+                title="MD 파일 다운로드"
+                style={{ minWidth: "5rem" }}
+              />
+              <Button
+                text="HTML"
                 onClick={() =>
                   handleHtmlDownload(
                     result.content,
@@ -207,6 +201,8 @@ ${bodyHtml}
                     result.metaDescription
                   )
                 }
+                title="HTML 파일 다운로드"
+                style={{ minWidth: "5rem" }}
               />
             </div>
           </div>

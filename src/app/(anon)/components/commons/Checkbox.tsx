@@ -25,7 +25,7 @@ export function Checkbox({
         checked={checked}
         onChange={onChange}
         disabled={disabled}
-        className="h-4 w-4 rounded border-indigo-500 text-indigo-500 focus:ring-indigo-500"
+        className="h-4 w-4 rounded border-purple-500 text-purple-500 focus:ring-purple-500"
       />
       <label htmlFor={id} className="text-sm font-medium text-black">
         {label}

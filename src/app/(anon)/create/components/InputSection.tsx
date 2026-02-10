@@ -78,8 +78,8 @@ export function InputSection({
                   onClick={() => onStyleChange(opt.value)}
                   className={`flex-1 px-2 py-3 rounded-md text-xs font-medium ${
                     style === opt.value
-                      ? "bg-indigo-600 text-white"
-                      : "bg-indigo-50 text-indigo-700 hover:bg-indigo-100 dark:bg-indigo-950 dark:text-indigo-300 dark:hover:bg-indigo-900"
+                      ? "bg-purple-600 text-white"
+                      : "bg-purple-50 text-purple-700 hover:bg-purple-100 dark:bg-purple-950 dark:text-purple-300 dark:hover:bg-purple-900"
                   }`}
                 >
                   {opt.label}

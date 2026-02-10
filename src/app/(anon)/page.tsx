@@ -2,7 +2,7 @@ import Link from "next/link";
 
 export default function Home() {
   return (
-    <main className="h-[calc(100vh-81px)] flex flex-col items-center justify-center bg-gradient-to-b from-indigo-50 to-white px-6 dark:from-zinc-900 dark:to-zinc-950 overflow-x-hidden overflow-y-auto">
+    <main className="h-[calc(100vh-81px)] flex flex-col items-center justify-center bg-gradient-to-b from-purple-50 to-white px-6 dark:from-zinc-900 dark:to-zinc-950 overflow-x-hidden overflow-y-auto">
       <div className="max-w-2xl w-full text-center space-y-8">
         <h1 className="text-4xl font-bold text-black tracking-tight dark:text-white">
           AI 블로그 글 생성
@@ -14,7 +14,7 @@ export default function Home() {
         <div className="pt-4">
           <Link
             href="/create"
-            className="inline-flex h-12 min-w-[180px] items-center justify-center rounded border border-indigo-500 bg-indigo-500 px-6 font-medium text-white hover:bg-indigo-600 focus:ring-2 focus:ring-indigo-500 focus:ring-offset-2 dark:border-indigo-600 dark:bg-indigo-600 dark:hover:bg-indigo-700 dark:focus:ring-indigo-600"
+            className="inline-flex h-12 min-w-[180px] items-center justify-center rounded border border-purple-500 bg-purple-500 px-6 font-medium text-white hover:bg-purple-600 focus:ring-2 focus:ring-purple-500 focus:ring-offset-2 dark:border-purple-600 dark:bg-purple-600 dark:hover:bg-purple-700 dark:focus:ring-purple-600"
           >
             글 생성하러 가기
           </Link>

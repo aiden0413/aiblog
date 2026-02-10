@@ -16,6 +16,7 @@ import "prismjs/components/prism-css";
 import "prismjs/components/prism-json";
 import "prismjs/components/prism-bash";
 import "prismjs/components/prism-markdown";
+import "prismjs/components/prism-python";
 import "@toast-ui/editor-plugin-code-syntax-highlight/dist/toastui-editor-plugin-code-syntax-highlight.css";
 import codeSyntaxHighlight from "@toast-ui/editor-plugin-code-syntax-highlight";
 
@@ -49,7 +50,7 @@ export function MarkdownEditor({
       viewer: !editable,
       height,
       minHeight,
-      initialEditType: "markdown",
+      initialEditType: "wysiwyg",
       previewStyle: "vertical",
       plugins: [[codeSyntaxHighlight, { highlighter: Prism }]],
     });
@@ -70,7 +71,7 @@ export function MarkdownEditor({
   return (
     <div
       ref={containerRef}
-      className={`rounded border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900 ${isDark ? "toastui-editor-dark" : ""}`}
+      className={`min-w-0 overflow-x-hidden rounded border border-zinc-200 bg-white p-4 dark:border-zinc-700 dark:bg-zinc-900 ${isDark ? "toastui-editor-dark" : ""}`}
     />
   );
 }
