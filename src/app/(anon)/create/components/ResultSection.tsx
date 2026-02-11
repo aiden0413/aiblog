@@ -30,7 +30,7 @@ const MarkdownEditor = dynamic(
 export interface ResultSectionProps {
   result: GenerateResponseDto | undefined;
   isPending?: boolean;
-  /** 변경될 때마다 스크롤을 맨 위로 (같은 항목 재선택 시에도 동작) */
+  /** 값이 변경될 때마다 결과 영역 스크롤을 상단으로 이동. 동일 항목 재선택 시에도 스크롤 동작 보장. */
   scrollToTopTrigger?: number;
 }
 

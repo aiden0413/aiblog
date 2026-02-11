@@ -9,7 +9,7 @@ export interface BlogHistoryItem {
   keywords: string[];
   style: StyleType;
   createdAt: string;
-  /** 생성 완료 후 저장된 결과 (있으면 히스토리 클릭 시 다시 보여줌) */
+  /** 생성 완료 후 저장된 결과. 존재 시 히스토리 항목 클릭 시 해당 결과를 다시 표시함. */
   result?: GenerateResponseDto;
 }
 
@@ -63,7 +63,7 @@ export function addHistoryItem(
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   } catch {
-    // quota 등으로 저장 실패 시 무시
+    /* localStorage 할당량 초과 등 저장 실패 시 무시. */
   }
 }
 
@@ -74,7 +74,7 @@ export function removeHistoryItemAtIndex(index: number): void {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(next));
   } catch {
-    // ignore
+    /* 저장 실패 시 무시. */
   }
 }
 

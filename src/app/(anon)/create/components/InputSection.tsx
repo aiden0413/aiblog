@@ -20,9 +20,9 @@ export interface InputSectionProps {
   onStyleChange: (value: StyleType) => void;
   onSubmit: (e: FormEvent<HTMLFormElement>) => void;
   isPending: boolean;
-  /** true면 제출 버튼 숨김 (모바일 푸터용 버튼 사용 시) */
+  /** true일 경우 제출 버튼을 숨김. 모바일 푸터의 별도 제출 버튼 사용 시 지정. */
   hideSubmitButton?: boolean;
-  /** form id (외부 버튼이 form 속성으로 제출할 때 사용) */
+  /** form 요소의 id. 외부 제출 버튼이 form 속성으로 이 폼을 참조할 때 사용. */
   formId?: string;
 }
 

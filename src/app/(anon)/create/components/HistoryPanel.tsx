@@ -1,14 +1,21 @@
 "use client";
 
+import { useState } from "react";
 import type { BlogHistoryItem } from "@/lib/blogHistory";
 import { STYLE_LABELS } from "@/lib/blogHistory";
 import { HiOutlineTrash } from "react-icons/hi";
+import { ConfirmModal } from "../../components/commons/ConfirmModal";
 
 interface HistoryPanelProps {
+  /** 패널 표시 여부. */
   isOpen: boolean;
+  /** 패널 닫기 콜백. */
   onClose: () => void;
+  /** 표시할 히스토리 항목 목록. */
   items: BlogHistoryItem[];
+  /** 항목 클릭 시 호출. 선택된 항목을 인자로 전달. */
   onSelectItem?: (item: BlogHistoryItem) => void;
+  /** 항목 삭제 시 호출. 삭제할 항목의 인덱스를 인자로 전달. */
   onRemoveItem?: (index: number) => void;
 }
 
@@ -29,9 +36,25 @@ function formatDate(iso: string): string {
 }
 
 export function HistoryPanel({ isOpen, items, onSelectItem, onRemoveItem }: HistoryPanelProps) {
+  const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(null);
+
   return (
     <>
-      {/* 슬라이드 패널: 오른쪽에서 슬라이드 인/아웃 (globals.css 전환 허용) */}
+      <ConfirmModal
+        isOpen={pendingDeleteIndex !== null}
+        title="히스토리 삭제"
+        message="이 항목을 히스토리에서 삭제할까요?"
+        confirmText="삭제"
+        cancelText="취소"
+        onConfirm={() => {
+          if (pendingDeleteIndex !== null) {
+            onRemoveItem?.(pendingDeleteIndex);
+            setPendingDeleteIndex(null);
+          }
+        }}
+        onCancel={() => setPendingDeleteIndex(null)}
+      />
+      {/* 우측 슬라이드 패널. 열림·닫힘 시 translateX 전환. 전환 애니메이션 적용 여부는 globals.css의 data-allow-transition 정책을 따름. */}
       <div
         data-allow-transition
         className="fixed right-0 z-50 w-full max-w-[280px] border-l border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 top-[81px] bottom-[4.5rem] md:bottom-0"
@@ -81,7 +104,7 @@ export function HistoryPanel({ isOpen, items, onSelectItem, onRemoveItem }: Hist
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          onRemoveItem?.(index);
+                          setPendingDeleteIndex(index);
                         }}
                         className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-600 dark:hover:bg-zinc-600 dark:hover:text-zinc-200"
                         aria-label="항목 삭제"

@@ -8,11 +8,11 @@ export interface ButtonProps {
   disabled?: boolean;
   onClick?: () => void;
   className?: string;
-  /** 제출할 form 요소의 id (type="submit"일 때) */
+  /** 제출 대상 form 요소의 id. type="submit"일 때만 유효. */
   form?: string;
-  /** 툴팁 (호버 시 표시) */
+  /** 툴팁 문자열. 호버 시 브라우저 기본 툴팁으로 표시됨. */
   title?: string;
-  /** 인라인 스타일 (className보다 우선 적용) */
+  /** 인라인 스타일 객체. className보다 우선 적용됨. */
   style?: CSSProperties;
 }
 

@@ -24,11 +24,11 @@ export default function CreatePage() {
   const [isInputOpen, setIsInputOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
   const [historyItems, setHistoryItems] = useState(() => getHistory());
-  /** 히스토리에서 선택한 결과 (클릭 시 ResultSection에 표시) */
+  /** 히스토리 목록에서 선택된 항목의 생성 결과. ResultSection에 표시됨. */
   const [selectedHistoryResult, setSelectedHistoryResult] = useState<
     GenerateResponseDto | null
   >(null);
-  /** 히스토리 선택 시 스크롤 맨 위로 (같은 항목 재선택 시에도 동작) */
+  /** 히스토리 항목 선택 시 ResultSection 스크롤을 상단으로 이동시키기 위한 트리거. 동일 항목 재선택 시에도 증가하여 스크롤 동작 보장. */
   const [scrollToTopTrigger, setScrollToTopTrigger] = useState(0);
 
   const { mutate, data: result, isPending } = useGenerateBlog();
@@ -64,7 +64,7 @@ export default function CreatePage() {
     setIsInputOpen(false);
   };
 
-  /** ResultSection에 보여줄 결과: 히스토리 선택 시 그 결과, 없으면 최근 API 응답 */
+  /** ResultSection에 표시할 데이터. 우선순위: 선택된 히스토리 항목 결과 > 최신 API 응답. */
   const displayResult = selectedHistoryResult ?? result ?? undefined;
 
   const handleSelectHistoryItem = (item: BlogHistoryItem) => {
@@ -156,7 +156,7 @@ export default function CreatePage() {
         </button>
       </div>
 
-      {/* PC: ResultSection 오른쪽 위, 헤더 밑 고정 히스토리 버튼 */}
+      {/* 데스크톱: ResultSection 우측 상단, 헤더 하단 고정 히스토리 버튼 */}
       <button
         type="button"
         onClick={() => setIsHistoryOpen((prev) => !prev)}
@@ -174,7 +174,7 @@ export default function CreatePage() {
         onRemoveItem={handleRemoveHistoryItem}
       />
 
-      {/* 결과 영역: 패널 열림 시 음영 오버레이, 클릭하면 패널 닫힘 */}
+      {/* 결과 영역. 히스토리 패널 열림 시 배경 오버레이 표시, 오버레이 클릭 시 패널 닫힘 */}
       <div className="relative flex-1 min-w-0 min-h-0 flex flex-col">
         {isHistoryOpen && (
           <button

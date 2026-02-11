@@ -22,11 +22,11 @@ import codeSyntaxHighlight from "@toast-ui/editor-plugin-code-syntax-highlight";
 
 interface MarkdownEditorProps {
   text: string;
-  /** true: 편집 가능, false: 읽기 전용 뷰어 (기본값: true) */
+  /** true: 편집 모드, false: 읽기 전용 뷰어. 기본값 true. */
   editable?: boolean;
-  /** 에디터 높이 (기본값: "400px") */
+  /** 에디터 영역 높이. 기본값 "400px". */
   height?: string;
-  /** 최소 높이 */
+  /** 에디터 영역 최소 높이. */
   minHeight?: string;
 }
 
@@ -60,7 +60,7 @@ export function MarkdownEditor({
       editor.destroy();
       editorRef.current = null;
     };
-  }, []); // editor는 마운트 시 한 번만 초기화
+  }, []); /* Editor 인스턴스는 마운트 시 한 번만 초기화. */
 
   useEffect(() => {
     if (editorRef.current && !editable && text !== undefined) {
