@@ -1,36 +1,105 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# AI Blog
 
-## Getting Started
+주제와 키워드를 입력하면 OpenAI를 사용해 블로그 글(마크다운)을 자동 생성하는 웹 앱입니다.
 
-First, run the development server:
+## 주요 기능
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **블로그 글 생성**: 주제, 키워드(쉼표 구분), 글 스타일을 선택 후 생성
+- **글 스타일**: 튜토리얼 / TIL / 트러블슈팅 중 선택
+- **생성 결과**: 제목, SEO 메타 설명, 해시태그, 본문(마크다운) 제공
+- **복사·다운로드**: 결과 복사, MD/HTML 파일 다운로드
+- **히스토리**: 생성 이력을 로컬에 저장하고 이전 결과 다시 보기
+- **다크 모드** 지원
+- **반응형**: 데스크톱·모바일 레이아웃
+
+## 기술 스택
+
+- **Next.js** 16 (App Router)
+- **React** 19
+- **TypeScript**
+- **Tailwind CSS** 4
+- **TanStack Query** (React Query)
+- **Toast UI Editor** (마크다운 에디터)
+- **OpenAI API** (글 생성)
+- **next-themes** (다크 모드)
+
+## 시작하기
+
+### 요구 사항
+
+- Node.js 18+
+- [OpenAI API Key](https://platform.openai.com/api-keys)
+
+### 환경 변수
+
+프로젝트 루트에 `.env.local` 파일을 만들고 다음을 설정하세요.
+
+```env
+OPENAI_API_KEY=your_openai_api_key_here
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### 설치 및 실행
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```bash
+# 의존성 설치
+npm install
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+# 개발 서버 실행
+npm run dev
+```
 
-## Learn More
+브라우저에서 [http://localhost:3000](http://localhost:3000) 로 접속합니다.
 
-To learn more about Next.js, take a look at the following resources:
+### 빌드
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+```bash
+npm run build
+npm start
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## 프로젝트 구조
 
-## Deploy on Vercel
+```
+src/
+├── app/
+│   ├── (anon)/              # 비인증 라우트
+│   │   ├── create/          # 블로그 글 생성 페이지
+│   │   │   ├── components/  # InputSection, ResultSection, HistoryPanel
+│   │   │   └── page.tsx
+│   │   ├── components/      # 공통 UI (Button, TextInput, MarkdownEditor 등)
+│   │   └── layout.tsx
+│   └── api/
+│       └── generate/        # POST /api/generate (글 생성 API)
+├── backend/                 # 도메인·유스케이스·인프라
+│   ├── applications/prompt/  # CreatePromptUsecase, DTO
+│   ├── domain/              # 엔티티, 리포지토리 인터페이스
+│   └── infrastructure/      # OpenAIRepository (OpenAI 연동)
+├── hooks/                   # useGenerateBlog 등
+├── lib/                     # blogHistory, ThemeProvider, QueryProvider
+└── types/
+```
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## API
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+### `POST /api/generate`
+
+블로그 글을 생성합니다.
+
+**요청 본문 (JSON)**
+
+| 필드      | 타입     | 필수 | 설명                    |
+|-----------|----------|------|-------------------------|
+| `topic`   | string   | O    | 블로그 주제             |
+| `keywords`| string[] | O    | 관련 키워드 배열        |
+| `style`   | string   | O    | `tutorial` \| `til` \| `troubleshooting` |
+
+**응답 (JSON)**
+
+- `title`: 제목
+- `metaDescription`: SEO 메타 설명
+- `hashtags`: 해시태그 배열
+- `content`: 마크다운 본문
+
+## 라이선스
+
+Private
