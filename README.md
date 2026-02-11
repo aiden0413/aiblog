@@ -2,6 +2,8 @@
 
 주제와 키워드를 입력하면 OpenAI를 사용해 블로그 글(마크다운)을 자동 생성하는 웹 앱입니다.
 
+**배포:** [https://aiblog-chi.vercel.app/](https://aiblog-chi.vercel.app/)
+
 ## 주요 기능
 
 - **블로그 글 생성**: 주제, 키워드(쉼표 구분), 글 스타일을 선택 후 생성
