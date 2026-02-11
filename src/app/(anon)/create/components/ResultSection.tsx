@@ -114,12 +114,31 @@ ${bodyHtml}
         className="p-6 flex-1 min-h-0 overflow-x-hidden overflow-y-auto"
       >
       {isPending ? (
-        <div className="h-full flex flex-col items-center justify-center gap-4">
-          <div
-            className="h-12 w-12 animate-spin rounded-full border-4 border-zinc-200 border-t-purple-500 dark:border-zinc-700 dark:border-t-purple-500"
-            aria-label="로딩 중"
-          />
-          <p className="text-sm text-zinc-500 dark:text-zinc-400">블로그 글을 생성하고 있습니다...</p>
+        <div className="flex flex-col space-y-4" aria-label="로딩 중">
+          <div className="h-6 w-48 rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
+          <div className="space-y-4">
+            <div>
+              <div className="h-4 w-12 rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse mb-2" />
+              <div className="min-h-10 w-full rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
+            </div>
+            <div>
+              <div className="h-4 w-14 rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse mb-2" />
+              <div className="min-h-10 w-full rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
+            </div>
+            <div>
+              <div className="h-4 w-16 rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse mb-2" />
+              <div className="min-h-10 w-full rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
+            </div>
+          </div>
+          <div className="flex flex-col min-w-0">
+            <div className="h-4 w-14 rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse mb-2" />
+            <div className="w-full h-[600px] min-w-0 rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
+            <div className="flex gap-2 pt-2">
+              <div className="h-10 min-w-[5rem] rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
+              <div className="h-10 min-w-[5rem] rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
+              <div className="h-10 min-w-[5rem] rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
+            </div>
+          </div>
         </div>
       ) : result ? (
         <div className="flex flex-col space-y-4">
