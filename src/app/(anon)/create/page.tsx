@@ -1,6 +1,6 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useState, useEffect } from "react";
 import type { StyleType } from "@/backend/applications/prompt/dtos/GenerateRequestDto";
 import type { GenerateResponseDto } from "@/backend/applications/prompt/dtos/GenerateResponseDto";
 import { useGenerateBlog } from "@/hooks/useGenerateBlog";
@@ -23,7 +23,11 @@ export default function CreatePage() {
   const [style, setStyle] = useState<StyleType>("tutorial");
   const [isInputOpen, setIsInputOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [historyItems, setHistoryItems] = useState(() => getHistory());
+  const [historyItems, setHistoryItems] = useState<BlogHistoryItem[]>([]);
+
+  useEffect(() => {
+    queueMicrotask(() => setHistoryItems(getHistory()));
+  }, []);
   /** 히스토리 목록에서 선택된 항목의 생성 결과. ResultSection에 표시됨. */
   const [selectedHistoryResult, setSelectedHistoryResult] = useState<
     GenerateResponseDto | null
