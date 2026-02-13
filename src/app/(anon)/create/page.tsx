@@ -4,8 +4,9 @@ import { FormEvent, useState, useEffect } from "react";
 import type { StyleType } from "@/backend/applications/prompt/dtos/GenerateRequestDto";
 import type { GenerateResponseDto } from "@/backend/applications/prompt/dtos/GenerateResponseDto";
 import { useGenerateBlog } from "@/hooks/useGenerateBlog";
-import { getHistory, addHistoryItem, removeHistoryItemAtIndex } from "@/lib/blogHistory";
-import type { BlogHistoryItem } from "@/lib/blogHistory";
+import { useBlogHistory } from "@/hooks/useBlogHistory";
+import { useAuth } from "@/lib/AuthProvider";
+import { addHistoryItem, type BlogHistoryItem } from "@/lib/blogHistory";
 import type { InputSectionProps } from "./components/InputSection";
 import { InputSection } from "./components/InputSection";
 import { ResultSection } from "./components/ResultSection";
@@ -18,16 +19,22 @@ const MOBILE_FORM_ID = "create-blog-form-mobile";
 const MOBILE_CLOSED_HEIGHT = 48;
 
 export default function CreatePage() {
+  const { user } = useAuth();
+  const {
+    historyItems,
+    refetch: refetchHistory,
+    removeItem: removeHistoryItem,
+  } = useBlogHistory(user?.id ?? null);
+
   const [topic, setTopic] = useState("");
   const [keywordsInput, setKeywordsInput] = useState("");
   const [style, setStyle] = useState<StyleType>("tutorial");
   const [isInputOpen, setIsInputOpen] = useState(false);
   const [isHistoryOpen, setIsHistoryOpen] = useState(false);
-  const [historyItems, setHistoryItems] = useState<BlogHistoryItem[]>([]);
 
   useEffect(() => {
-    queueMicrotask(() => setHistoryItems(getHistory()));
-  }, []);
+    refetchHistory();
+  }, [refetchHistory]);
   /** 히스토리 목록에서 선택된 항목의 생성 결과. ResultSection에 표시됨. */
   const [selectedHistoryResult, setSelectedHistoryResult] = useState<
     GenerateResponseDto | null
@@ -55,13 +62,17 @@ export default function CreatePage() {
       },
       {
         onSuccess: (responseData) => {
-          addHistoryItem({
-            topic: topic.trim(),
-            keywords,
-            style,
-            result: responseData,
-          });
-          setHistoryItems(getHistory());
+          if (user) {
+            refetchHistory();
+          } else {
+            addHistoryItem({
+              topic: topic.trim(),
+              keywords,
+              style,
+              result: responseData,
+            });
+            refetchHistory();
+          }
         },
       }
     );
@@ -80,8 +91,7 @@ export default function CreatePage() {
   };
 
   const handleRemoveHistoryItem = (index: number) => {
-    removeHistoryItemAtIndex(index);
-    setHistoryItems(getHistory());
+    removeHistoryItem(index);
   };
 
   const inputSectionProps: InputSectionProps = {

@@ -2,7 +2,7 @@ import type {
   GenerateRequestDto,
   StyleType,
 } from "@/backend/applications/prompt/dtos/GenerateRequestDto";
-import type { OpenAIGenerateResult } from "@/backend/domain/entities/OpenAIGenerateResult";
+import type { OpenAIGenerateResultEntity } from "@/backend/domain/entities/OpenAIGenerateResult";
 import type { PromptGenerateRepository } from "@/backend/domain/repository/PromptGenerateRepository";
 
 const STYLE_PROMPTS: Record<
@@ -54,13 +54,16 @@ const JSON_OUTPUT_INSTRUCTION = `
 }`;
 
 /**
- * 글 생성 요청을 받아 프롬프트를 만들고 Repository를 통해 블로그 글을 생성
+ * 글 생성 요청을 받아 프롬프트를 만들고 Repository를 통해 블로그 글을 생성.
+ * params.userId가 있으면 Repository에서 생성 후 DB 저장까지 트랜잭션처럼 처리.
  */
 export class CreatePromptUsecase {
   constructor(private readonly promptGenerateRepository: PromptGenerateRepository) {}
 
-  async execute(params: GenerateRequestDto): Promise<OpenAIGenerateResult> {
-    const { topic, keywords, style } = params;
+  async execute(
+    params: GenerateRequestDto
+  ): Promise<OpenAIGenerateResultEntity> {
+    const { topic, keywords, style, userId } = params;
 
     const keywordPart =
       keywords.length > 0 ? `다음 키워드를 포함: ${keywords.join(", ")}.` : "";
@@ -87,6 +90,13 @@ export class CreatePromptUsecase {
       .filter(Boolean)
       .join("\n");
 
-    return this.promptGenerateRepository.generate({ systemContent, userContent });
+    const generateContext = userId
+      ? { userId, topic, keywords, style }
+      : undefined;
+
+    return this.promptGenerateRepository.generate(
+      { systemContent, userContent },
+      generateContext
+    );
   }
 }

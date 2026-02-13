@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getSupabase } from "@/lib/supabase/server";
 import { CreatePromptUsecase } from "@/backend/applications/prompt/usecases/CreatePromptUsecase";
-import { OpenAIRepository } from "@/backend/infrastructure/repository/OpenAIRepository";
+import { createPromptGenerateRepository } from "@/backend/infrastructure/repository/OpenAIRepository";
+import type { GenerateResponseDto } from "@/backend/applications/prompt/dtos/GenerateResponseDto";
 import type {
   GenerateRequestDto,
   StyleType,
@@ -37,11 +39,37 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    const promptGenerateRepository = new OpenAIRepository();
-    const usecase = new CreatePromptUsecase(promptGenerateRepository);
-    const result = await usecase.execute(params);
+    const supabase = await getSupabase();
+    let userId: string | undefined;
 
-    return NextResponse.json(result);
+    if (supabase) {
+      const {
+        data: { user },
+        error: authError,
+      } = await supabase.auth.getUser();
+      if (!authError && user) {
+        userId = user.id;
+      }
+    }
+
+    const requestDto: GenerateRequestDto = {
+      ...params,
+      ...(userId ? { userId } : {}),
+    };
+
+    const promptGenerateRepository = createPromptGenerateRepository(supabase);
+    const usecase = new CreatePromptUsecase(promptGenerateRepository);
+    const result = await usecase.execute(requestDto);
+
+    // Domain Entity를 Application DTO로 변환
+    const dto: GenerateResponseDto = {
+      title: result.title,
+      content: result.content,
+      hashtags: result.hashtags,
+      metaDescription: result.metaDescription,
+    };
+
+    return NextResponse.json(dto);
   } catch (err) {
     const message = err instanceof Error ? err.message : "서버 오류";
     return NextResponse.json({ error: message }, { status: 500 });

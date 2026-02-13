@@ -5,6 +5,8 @@ const STORAGE_KEY = "aiblog-history";
 const MAX_ITEMS = 50;
 
 export interface BlogHistoryItem {
+  /** API에서 온 항목일 때만 존재 (로컬 전용 항목은 없음) */
+  id?: string;
   topic: string;
   keywords: string[];
   style: StyleType;

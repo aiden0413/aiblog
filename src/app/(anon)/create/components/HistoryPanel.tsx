@@ -84,7 +84,7 @@ export function HistoryPanel({ isOpen, items, onSelectItem, onRemoveItem }: Hist
                   const hasResult = Boolean(item.result);
                   return (
                     <li
-                      key={`${item.createdAt}-${index}`}
+                      key={item.id ?? `${item.createdAt}-${index}`}
                       role={hasResult ? "button" : undefined}
                       tabIndex={hasResult ? 0 : undefined}
                       onClick={() => hasResult && onSelectItem?.(item)}

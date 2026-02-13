@@ -1,7 +1,8 @@
 import { createServerClient } from "@supabase/ssr";
 import { cookies } from "next/headers";
 
-export async function createClient() {
+/** 요청별 Supabase 클라이언트 (쿠키 기반 세션). 싱글톤이 아닌 요청 단위 인스턴스 반환 */
+export async function getSupabase() {
   const cookieStore = await cookies();
 
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL ?? "";
@@ -28,3 +29,6 @@ export async function createClient() {
     },
   });
 }
+
+/** @deprecated getSupabase() 사용 권장 */
+export const createClient = getSupabase;
