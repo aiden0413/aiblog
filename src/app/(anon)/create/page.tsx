@@ -18,6 +18,25 @@ import { MdHistory } from "react-icons/md";
 const MOBILE_FORM_ID = "create-blog-form-mobile";
 const MOBILE_CLOSED_HEIGHT = 48;
 
+function HistoryToggleButton({
+  onClick,
+  className,
+}: {
+  onClick: () => void;
+  className: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      className={className}
+      aria-label="히스토리"
+    >
+      <MdHistory className="h-5 w-5" />
+    </button>
+  );
+}
+
 export default function CreatePage() {
   const { user } = useAuth();
   const {
@@ -95,6 +114,11 @@ export default function CreatePage() {
     removeHistoryItem(index);
   };
 
+  const handleHistoryToggle = () => {
+    setIsInputOpen(false);
+    setIsHistoryOpen((prev) => !prev);
+  };
+
   const inputSectionProps: InputSectionProps = {
     topic,
     onTopicChange: setTopic,
@@ -117,7 +141,7 @@ export default function CreatePage() {
         className="fixed left-0 right-0 z-30 flex flex-col overflow-hidden border-t border-zinc-200 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] lg:hidden"
         style={{
           bottom: isInputOpen ? 0 : "calc(1rem + 40px + max(1rem, env(safe-area-inset-bottom)))",
-          height: isInputOpen ? "100vh" : `${MOBILE_CLOSED_HEIGHT}px`,
+          height: isInputOpen ? "100dvh" : `${MOBILE_CLOSED_HEIGHT}px`,
           paddingTop: "env(safe-area-inset-top, 0px)",
           transition: "bottom 300ms cubic-bezier(0.32, 0.72, 0, 1), height 300ms cubic-bezier(0.32, 0.72, 0, 1)",
           width: "100%",
@@ -126,7 +150,7 @@ export default function CreatePage() {
         <button
           type="button"
           onClick={() => setIsInputOpen((prev) => !prev)}
-          className="shrink-0 h-12 flex flex-col items-center justify-center bg-zinc-100 dark:bg-zinc-800"
+          className="shrink-0 h-12 flex flex-col items-center justify-center bg-white dark:bg-zinc-900"
           aria-label={isInputOpen ? "입력 영역 접기" : "입력 영역 펼치기"}
         >
           {isInputOpen ? (
@@ -151,7 +175,7 @@ export default function CreatePage() {
         </div>
       </div>
       <div
-        className="fixed left-0 right-0 bottom-0 z-40 flex gap-2 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden dark:bg-zinc-900"
+        className="fixed left-0 right-0 bottom-0 z-40 flex gap-2 bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden dark:bg-zinc-900"
         style={{ width: "100%" }}
       >
         <Button
@@ -161,25 +185,16 @@ export default function CreatePage() {
           disabled={isPending}
           className="flex-1 min-w-0"
         />
-        <button
-          type="button"
-          onClick={() => setIsHistoryOpen((prev) => !prev)}
+        <HistoryToggleButton
+          onClick={handleHistoryToggle}
           className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded text-zinc-600 outline-none hover:bg-zinc-100 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white dark:focus:ring-purple-600"
-          aria-label="히스토리"
-        >
-          <MdHistory className="h-5 w-5" />
-        </button>
+        />
       </div>
 
-      {/* 데스크톱: ResultSection 우측 상단, 헤더 하단 고정 히스토리 버튼 */}
-      <button
-        type="button"
-        onClick={() => setIsHistoryOpen((prev) => !prev)}
+      <HistoryToggleButton
+        onClick={handleHistoryToggle}
         className="fixed top-24 right-4 z-30 hidden lg:inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 shadow-sm outline-none hover:bg-zinc-50 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-purple-600"
-        aria-label="히스토리"
-      >
-        <MdHistory className="h-5 w-5" />
-      </button>
+      />
 
       <HistoryPanel
         isOpen={isHistoryOpen}
