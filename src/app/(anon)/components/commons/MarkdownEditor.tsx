@@ -56,6 +56,13 @@ export function MarkdownEditor({
     });
     editorRef.current = editor;
 
+    // 글 생성 후 에디터가 자동 포커스되는 것 방지 (에디터 API 사용)
+    if (editable && "blur" in editor && typeof editor.blur === "function") {
+      requestAnimationFrame(() => {
+        (editor as { blur: () => void }).blur();
+      });
+    }
+
     return () => {
       editor.destroy();
       editorRef.current = null;
