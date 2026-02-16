@@ -20,17 +20,26 @@ import "prismjs/components/prism-python";
 import "@toast-ui/editor-plugin-code-syntax-highlight/dist/toastui-editor-plugin-code-syntax-highlight.css";
 import codeSyntaxHighlight from "@toast-ui/editor-plugin-code-syntax-highlight";
 
-const BLUR_DELAY_MS = 100;
-
 function scheduleEditorBlur(editor: ReturnType<typeof Editor.factory> | null): void {
   if (!editor || !("blur" in editor) || typeof editor.blur !== "function") return;
-  setTimeout(() => {
+  
+  // 즉시 blur 시도 (requestAnimationFrame으로 다음 프레임에서 실행)
+  requestAnimationFrame(() => {
     try {
       (editor as { blur: () => void }).blur();
     } catch {
       // 에디터가 아직 완전히 초기화되지 않은 경우 무시
     }
-  }, BLUR_DELAY_MS);
+  });
+  
+  // 추가 안전장치: 다음 이벤트 루프에서도 blur (포커스가 이미 간 경우 대비)
+  setTimeout(() => {
+    try {
+      (editor as { blur: () => void }).blur();
+    } catch {
+      // 무시
+    }
+  }, 0);
 }
 
 interface MarkdownEditorProps {
