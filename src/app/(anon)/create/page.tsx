@@ -43,6 +43,7 @@ export default function CreatePage() {
     historyItems,
     refetch: refetchHistory,
     removeItem: removeHistoryItem,
+    isDeleting: isHistoryDeleting,
   } = useBlogHistory(user?.id ?? null);
 
   const [topic, setTopic] = useState("");
@@ -96,6 +97,7 @@ export default function CreatePage() {
       }
     );
     setIsInputOpen(false);
+    setIsHistoryOpen(false);
   };
 
   /** ResultSection에 표시할 데이터. 우선순위: 선택된 히스토리 항목 결과 > 최신 API 응답. */
@@ -131,14 +133,14 @@ export default function CreatePage() {
   };
 
   return (
-    <main className="flex h-full min-h-0 flex-1 flex-col relative">
-      <aside className="hidden w-80 shrink-0 border-r border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900 lg:flex lg:flex-col">
+    <main className="flex h-full min-h-0 w-full flex-1 flex-col min-[900px]:flex-row relative">
+      <aside className="hidden w-80 shrink-0 border-r border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900 min-[900px]:flex min-[900px]:flex-col">
         <InputSection {...inputSectionProps} />
       </aside>
 
       <div
         data-allow-transition
-        className="fixed left-0 right-0 z-30 flex flex-col overflow-hidden border-t border-zinc-200 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] lg:hidden"
+        className="fixed left-0 right-0 z-30 flex flex-col overflow-hidden border-t border-zinc-200 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] min-[900px]:hidden"
         style={{
           bottom: isInputOpen ? 0 : "calc(1rem + 40px + max(1rem, env(safe-area-inset-bottom)))",
           height: isInputOpen ? "100dvh" : `${MOBILE_CLOSED_HEIGHT}px`,
@@ -175,7 +177,7 @@ export default function CreatePage() {
         </div>
       </div>
       <div
-        className="fixed left-0 right-0 bottom-0 z-40 flex gap-2 bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden dark:bg-zinc-900"
+        className="fixed left-0 right-0 bottom-0 z-40 flex gap-2 bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] min-[900px]:hidden dark:bg-zinc-900"
         style={{ width: "100%" }}
       >
         <Button
@@ -193,7 +195,7 @@ export default function CreatePage() {
 
       <HistoryToggleButton
         onClick={handleHistoryToggle}
-        className="fixed top-24 right-4 z-30 hidden lg:inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 shadow-sm outline-none hover:bg-zinc-50 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-purple-600"
+        className="fixed top-24 right-4 z-30 hidden min-[900px]:inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 shadow-sm outline-none hover:bg-zinc-50 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-purple-600"
       />
 
       <HistoryPanel
@@ -202,6 +204,7 @@ export default function CreatePage() {
         items={historyItems}
         onSelectItem={handleSelectHistoryItem}
         onRemoveItem={handleRemoveHistoryItem}
+        isDeleting={isHistoryDeleting}
       />
 
       {/* 결과 영역. 히스토리 패널 열림 시 배경 오버레이 표시, 오버레이 클릭 시 패널 닫힘 */}
@@ -210,7 +213,7 @@ export default function CreatePage() {
           <button
             type="button"
             onClick={() => setIsHistoryOpen(false)}
-            className="absolute top-0 left-0 right-0 bottom-[4.5rem] lg:bottom-0 z-40 bg-black/30"
+            className="absolute top-0 left-0 right-0 bottom-[4.5rem] min-[900px]:bottom-0 z-40 bg-black/30"
             aria-label="히스토리 패널 닫기"
           />
         )}

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import type { BlogHistoryItem } from "@/lib/blogHistory";
 import { STYLE_LABELS } from "@/lib/blogHistory";
 import { HiOutlineTrash } from "react-icons/hi";
@@ -17,6 +17,8 @@ interface HistoryPanelProps {
   onSelectItem?: (item: BlogHistoryItem) => void;
   /** 항목 삭제 시 호출. 삭제할 항목의 인덱스를 인자로 전달. */
   onRemoveItem?: (index: number) => void;
+  /** 삭제 API 요청 중 여부. true일 때 확인 모달에 "삭제 중..." 표시. */
+  isDeleting?: boolean;
 }
 
 function formatDate(iso: string): string {
@@ -35,8 +37,18 @@ function formatDate(iso: string): string {
   }
 }
 
-export function HistoryPanel({ isOpen, items, onSelectItem, onRemoveItem }: HistoryPanelProps) {
+export function HistoryPanel({ isOpen, items, onSelectItem, onRemoveItem, isDeleting = false }: HistoryPanelProps) {
   const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(null);
+  const [deleteRequested, setDeleteRequested] = useState(false);
+
+  useEffect(() => {
+    if (!deleteRequested || isDeleting) return;
+    const id = setTimeout(() => {
+      setPendingDeleteIndex(null);
+      setDeleteRequested(false);
+    }, 0);
+    return () => clearTimeout(id);
+  }, [deleteRequested, isDeleting]);
 
   return (
     <>
@@ -44,20 +56,24 @@ export function HistoryPanel({ isOpen, items, onSelectItem, onRemoveItem }: Hist
         isOpen={pendingDeleteIndex !== null}
         title="히스토리 삭제"
         message="이 항목을 히스토리에서 삭제할까요?"
-        confirmText="삭제"
+        confirmText={isDeleting ? "삭제 중..." : "삭제"}
         cancelText="취소"
+        confirmDisabled={isDeleting}
         onConfirm={() => {
           if (pendingDeleteIndex !== null) {
             onRemoveItem?.(pendingDeleteIndex);
-            setPendingDeleteIndex(null);
+            setDeleteRequested(true);
           }
         }}
-        onCancel={() => setPendingDeleteIndex(null)}
+        onCancel={() => {
+          setPendingDeleteIndex(null);
+          setDeleteRequested(false);
+        }}
       />
       {/* 우측 슬라이드 패널. 열림·닫힘 시 translateX 전환. 전환 애니메이션 적용 여부는 globals.css의 data-allow-transition 정책을 따름. */}
       <div
         data-allow-transition
-        className="fixed right-0 z-50 w-full max-w-[280px] border-l border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 top-[81px] bottom-[4.5rem] lg:bottom-0"
+        className="fixed right-0 z-50 w-full max-w-[280px] border-l border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 top-[81px] bottom-[4.5rem] min-[900px]:bottom-0"
         style={{
           transform: isOpen ? "translateX(0)" : "translateX(100%)",
           transition: "transform 300ms cubic-bezier(0.32, 0.72, 0, 1)",

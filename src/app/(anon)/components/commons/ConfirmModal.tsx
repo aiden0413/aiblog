@@ -17,6 +17,8 @@ export interface ConfirmModalProps {
   onConfirm: () => void;
   /** 취소 버튼 클릭 또는 배경·Esc 시 호출. */
   onCancel: () => void;
+  /** 확인 버튼 비활성화 (예: 삭제 중). */
+  confirmDisabled?: boolean;
 }
 
 export function ConfirmModal({
@@ -27,6 +29,7 @@ export function ConfirmModal({
   cancelText,
   onConfirm,
   onCancel,
+  confirmDisabled = false,
 }: ConfirmModalProps) {
   useEffect(() => {
     if (!isOpen) return;
@@ -81,7 +84,8 @@ export function ConfirmModal({
             onClick={() => {
               onConfirm();
             }}
-            className={confirmClassName}
+            disabled={confirmDisabled}
+            className={`${confirmClassName} disabled:cursor-not-allowed disabled:opacity-70`}
           >
             {confirmText}
           </button>

@@ -20,6 +20,19 @@ import "prismjs/components/prism-python";
 import "@toast-ui/editor-plugin-code-syntax-highlight/dist/toastui-editor-plugin-code-syntax-highlight.css";
 import codeSyntaxHighlight from "@toast-ui/editor-plugin-code-syntax-highlight";
 
+const BLUR_DELAY_MS = 100;
+
+function scheduleEditorBlur(editor: ReturnType<typeof Editor.factory> | null): void {
+  if (!editor || !("blur" in editor) || typeof editor.blur !== "function") return;
+  setTimeout(() => {
+    try {
+      (editor as { blur: () => void }).blur();
+    } catch {
+      // 에디터가 아직 완전히 초기화되지 않은 경우 무시
+    }
+  }, BLUR_DELAY_MS);
+}
+
 interface MarkdownEditorProps {
   text: string;
   /** true: 편집 모드, false: 읽기 전용 뷰어. 기본값 true. */
@@ -56,12 +69,7 @@ export function MarkdownEditor({
     });
     editorRef.current = editor;
 
-    // 글 생성 후 에디터가 자동 포커스되는 것 방지 (에디터 API 사용)
-    if (editable && "blur" in editor && typeof editor.blur === "function") {
-      requestAnimationFrame(() => {
-        (editor as { blur: () => void }).blur();
-      });
-    }
+    if (editable) scheduleEditorBlur(editor);
 
     return () => {
       editor.destroy();
@@ -73,6 +81,12 @@ export function MarkdownEditor({
     if (editorRef.current && !editable && text !== undefined) {
       editorRef.current.setMarkdown(text);
     }
+  }, [text, editable]);
+
+  // result가 바뀔 때(다른 글 불러올 때) 포커스 해제
+  useEffect(() => {
+    if (!editable) return;
+    scheduleEditorBlur(editorRef.current);
   }, [text, editable]);
 
   return (
