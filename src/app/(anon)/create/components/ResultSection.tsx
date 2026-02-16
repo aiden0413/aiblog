@@ -103,7 +103,7 @@ ${bodyHtml}
   }
 
   return (
-    <section className="flex-1 min-w-0 min-h-0 flex flex-col overflow-x-hidden bg-zinc-50 dark:bg-zinc-950 relative md:h-full max-h-[calc(100vh-81px-120px)] md:max-h-none">
+    <section className="flex-1 min-w-0 min-h-0 flex flex-col overflow-x-hidden bg-zinc-50 dark:bg-zinc-950 relative lg:h-full max-h-[calc(100vh-81px-120px)] lg:max-h-none">
       {copiedLabel !== null && (
         <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-lg dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
           {copiedLabel} 복사됨

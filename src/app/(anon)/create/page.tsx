@@ -87,6 +87,7 @@ export default function CreatePage() {
       setSelectedHistoryResult(item.result);
       setScrollToTopTrigger((t) => t + 1);
       setIsHistoryOpen(false);
+      setIsInputOpen(false);
     }
   };
 
@@ -106,14 +107,14 @@ export default function CreatePage() {
   };
 
   return (
-    <main className="h-[calc(100vh-81px)] flex relative">
-      <aside className="hidden w-80 shrink-0 border-r border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900 md:flex md:flex-col">
+    <main className="flex h-full min-h-0 flex-1 flex-col relative">
+      <aside className="hidden w-80 shrink-0 border-r border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900 lg:flex lg:flex-col">
         <InputSection {...inputSectionProps} />
       </aside>
 
       <div
         data-allow-transition
-        className="fixed left-0 right-0 z-30 flex flex-col overflow-hidden border-t border-zinc-200 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] md:hidden"
+        className="fixed left-0 right-0 z-30 flex flex-col overflow-hidden border-t border-zinc-200 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] lg:hidden"
         style={{
           bottom: isInputOpen ? 0 : "calc(1rem + 40px + max(1rem, env(safe-area-inset-bottom)))",
           height: isInputOpen ? "100vh" : `${MOBILE_CLOSED_HEIGHT}px`,
@@ -150,7 +151,7 @@ export default function CreatePage() {
         </div>
       </div>
       <div
-        className="fixed left-0 right-0 bottom-0 z-40 flex gap-2 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] md:hidden dark:bg-zinc-900"
+        className="fixed left-0 right-0 bottom-0 z-40 flex gap-2 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] lg:hidden dark:bg-zinc-900"
         style={{ width: "100%" }}
       >
         <Button
@@ -174,7 +175,7 @@ export default function CreatePage() {
       <button
         type="button"
         onClick={() => setIsHistoryOpen((prev) => !prev)}
-        className="fixed top-24 right-4 z-30 hidden md:inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 shadow-sm outline-none hover:bg-zinc-50 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-purple-600"
+        className="fixed top-24 right-4 z-30 hidden lg:inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 shadow-sm outline-none hover:bg-zinc-50 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-purple-600"
         aria-label="히스토리"
       >
         <MdHistory className="h-5 w-5" />
@@ -194,7 +195,7 @@ export default function CreatePage() {
           <button
             type="button"
             onClick={() => setIsHistoryOpen(false)}
-            className="absolute top-0 left-0 right-0 bottom-[4.5rem] md:bottom-0 z-40 bg-black/30"
+            className="absolute top-0 left-0 right-0 bottom-[4.5rem] lg:bottom-0 z-40 bg-black/30"
             aria-label="히스토리 패널 닫기"
           />
         )}
