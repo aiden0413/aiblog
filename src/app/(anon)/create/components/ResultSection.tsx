@@ -30,6 +30,8 @@ const MarkdownEditor = dynamic(
 export interface ResultSectionProps {
   result: GenerateResponseDto | undefined;
   isPending?: boolean;
+  /** API/네트워크 에러 시 사용자에게 보여줄 메시지. 있으면 에러 UI 표시. */
+  errorMessage?: string | null;
   /** 값이 변경될 때마다 결과 영역 스크롤을 상단으로 이동. 동일 항목 재선택 시에도 스크롤 동작 보장. */
   scrollToTopTrigger?: number;
 }
@@ -72,6 +74,7 @@ function ResultSectionSkeleton() {
 export function ResultSection({
   result,
   isPending = false,
+  errorMessage = null,
   scrollToTopTrigger = 0,
 }: ResultSectionProps) {
   const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
@@ -147,6 +150,17 @@ ${bodyHtml}
       >
       {isPending ? (
         <ResultSectionSkeleton />
+      ) : errorMessage ? (
+        <div className="flex flex-1 min-h-full flex-col items-center justify-center px-6 py-10 text-center">
+          <div className="rounded-full bg-red-100 dark:bg-red-900/30 p-4 mb-4" aria-hidden>
+            <svg className="w-10 h-10 text-red-600 dark:text-red-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+              <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126zM12 15.75h.007v.008H12v-.008z" />
+            </svg>
+          </div>
+          <h3 className="text-base font-semibold text-zinc-800 dark:text-zinc-200 mb-2">생성에 실패했습니다</h3>
+          <p className="text-sm text-zinc-600 dark:text-zinc-400 max-w-md mb-6">{errorMessage}</p>
+          <p className="text-xs text-zinc-500 dark:text-zinc-500">입력 내용을 확인한 뒤 다시 시도해주세요.</p>
+        </div>
       ) : result ? (
         <>
           <div

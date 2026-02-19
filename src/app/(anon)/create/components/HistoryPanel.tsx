@@ -19,6 +19,14 @@ interface HistoryPanelProps {
   onRemoveItem?: (index: number) => void;
   /** 삭제 API 요청 중 여부. true일 때 확인 모달에 "삭제 중..." 표시. */
   isDeleting?: boolean;
+  /** 히스토리 목록 불러오기 실패 시 에러 메시지. 있으면 패널 상단에 표시. */
+  fetchError?: string | null;
+  /** 불러오기 재시도 콜백. fetchError가 있을 때 "다시 시도" 버튼에 사용. */
+  onRetryFetch?: () => void;
+  /** 항목 삭제 실패 시 에러 메시지. 있으면 패널 상단에 표시. */
+  deleteError?: string | null;
+  /** 삭제 에러 메시지 닫기 콜백. */
+  onDismissDeleteError?: () => void;
 }
 
 function formatDate(iso: string): string {
@@ -37,7 +45,17 @@ function formatDate(iso: string): string {
   }
 }
 
-export function HistoryPanel({ isOpen, items, onSelectItem, onRemoveItem, isDeleting = false }: HistoryPanelProps) {
+export function HistoryPanel({
+  isOpen,
+  items,
+  onSelectItem,
+  onRemoveItem,
+  isDeleting = false,
+  fetchError = null,
+  onRetryFetch,
+  deleteError = null,
+  onDismissDeleteError,
+}: HistoryPanelProps) {
   const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(null);
   const [deleteRequested, setDeleteRequested] = useState(false);
 
@@ -87,6 +105,47 @@ export function HistoryPanel({ isOpen, items, onSelectItem, onRemoveItem, isDele
               히스토리
             </h2>
           </div>
+          {(fetchError ?? deleteError) && (
+            <div className="shrink-0 border-b border-zinc-200 px-3 py-2 dark:border-zinc-700">
+              <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 py-2 pl-2.5 pr-2 dark:border-amber-800 dark:bg-amber-950/40">
+                <span className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden>
+                  <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
+                    <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                  </svg>
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-xs font-medium text-amber-800 dark:text-amber-200">
+                    {fetchError ? "불러오기 실패" : "삭제 실패"}
+                  </p>
+                  <p className="mt-0.5 text-xs text-amber-700 dark:text-amber-300 break-words">
+                    {fetchError ?? deleteError}
+                  </p>
+                  <div className="mt-1.5">
+                    {fetchError && onRetryFetch ? (
+                      <button
+                        type="button"
+                        onClick={onRetryFetch}
+                        className="text-xs font-medium text-amber-700 underline hover:no-underline dark:text-amber-300"
+                      >
+                        다시 시도
+                      </button>
+                    ) : (
+                      deleteError &&
+                      onDismissDeleteError && (
+                        <button
+                          type="button"
+                          onClick={onDismissDeleteError}
+                          className="text-xs font-medium text-amber-700 underline hover:no-underline dark:text-amber-300"
+                        >
+                          닫기
+                        </button>
+                      )
+                    )}
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
           <div className="flex flex-1 flex-col overflow-y-auto p-4">
             {items.length === 0 ? (
               <div className="flex flex-1 items-center justify-center">

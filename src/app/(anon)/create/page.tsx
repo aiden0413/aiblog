@@ -44,6 +44,9 @@ export default function CreatePage() {
     refetch: refetchHistory,
     removeItem: removeHistoryItem,
     isDeleting: isHistoryDeleting,
+    fetchError: historyFetchError,
+    deleteError: historyDeleteError,
+    clearDeleteError: clearHistoryDeleteError,
   } = useBlogHistory(user?.id ?? null);
 
   const [topic, setTopic] = useState("");
@@ -62,7 +65,21 @@ export default function CreatePage() {
   /** 히스토리 항목 선택 시 ResultSection 스크롤을 상단으로 이동시키기 위한 트리거. 동일 항목 재선택 시에도 증가하여 스크롤 동작 보장. */
   const [scrollToTopTrigger, setScrollToTopTrigger] = useState(0);
 
-  const { mutate, data: result, isPending } = useGenerateBlog();
+  const { mutate, data: result, isPending, error: generateError, reset: resetGenerateError } = useGenerateBlog();
+  const [isOffline, setIsOffline] = useState(false);
+
+  useEffect(() => {
+    const handleOnline = () => setIsOffline(false);
+    const handleOffline = () => setIsOffline(true);
+    const syncOffline = () => setIsOffline(!navigator.onLine);
+    window.addEventListener("online", handleOnline);
+    window.addEventListener("offline", handleOffline);
+    queueMicrotask(syncOffline);
+    return () => {
+      window.removeEventListener("online", handleOnline);
+      window.removeEventListener("offline", handleOffline);
+    };
+  }, []);
 
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -73,6 +90,7 @@ export default function CreatePage() {
       .filter(Boolean);
 
     setSelectedHistoryResult(null);
+    resetGenerateError();
 
     mutate(
       {
@@ -132,15 +150,30 @@ export default function CreatePage() {
     isPending,
   };
 
+  const errorMessage = generateError ?? null;
+
   return (
-    <main className="flex h-full min-h-0 w-full flex-1 flex-col min-[900px]:flex-row relative">
+    <main
+      className={`flex h-full min-h-0 w-full flex-1 flex-col min-[900px]:flex-row relative ${isOffline ? "pt-12" : ""}`}
+    >
+      {isOffline && (
+        <div
+          className="absolute top-0 left-0 right-0 z-50 flex items-center justify-center gap-2 bg-amber-500 text-white px-4 py-2.5 text-sm font-medium shadow-md"
+          role="alert"
+        >
+          <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414" />
+          </svg>
+          <span>인터넷에 연결되어 있지 않습니다. 블로그 생성을 하려면 네트워크를 확인해주세요.</span>
+        </div>
+      )}
       <aside className="hidden w-80 shrink-0 border-r border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900 min-[900px]:flex min-[900px]:flex-col">
         <InputSection {...inputSectionProps} />
       </aside>
 
       <div
         data-allow-transition
-        className="fixed left-0 right-0 z-30 flex flex-col overflow-hidden border-t border-zinc-200 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] min-[900px]:hidden"
+        className={`fixed left-0 right-0 flex flex-col overflow-hidden border-t border-zinc-200 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] min-[900px]:hidden ${isInputOpen ? "z-50" : "z-30"}`}
         style={{
           bottom: isInputOpen ? 0 : "calc(1rem + 40px + max(1rem, env(safe-area-inset-bottom)))",
           height: isInputOpen ? "100dvh" : `${MOBILE_CLOSED_HEIGHT}px`,
@@ -195,7 +228,7 @@ export default function CreatePage() {
 
       <HistoryToggleButton
         onClick={handleHistoryToggle}
-        className="fixed top-24 right-4 z-30 hidden min-[900px]:inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 shadow-sm outline-none hover:bg-zinc-50 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-purple-600"
+        className={`fixed right-4 z-30 hidden min-[900px]:inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 shadow-sm outline-none hover:bg-zinc-50 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-purple-600 ${isOffline ? "top-36" : "top-24"}`}
       />
 
       <HistoryPanel
@@ -205,6 +238,10 @@ export default function CreatePage() {
         onSelectItem={handleSelectHistoryItem}
         onRemoveItem={handleRemoveHistoryItem}
         isDeleting={isHistoryDeleting}
+        fetchError={historyFetchError}
+        onRetryFetch={refetchHistory}
+        deleteError={historyDeleteError}
+        onDismissDeleteError={clearHistoryDeleteError}
       />
 
       {/* 결과 영역. 히스토리 패널 열림 시 배경 오버레이 표시, 오버레이 클릭 시 패널 닫힘 */}
@@ -225,6 +262,7 @@ export default function CreatePage() {
           }
           result={displayResult}
           isPending={isPending}
+          errorMessage={errorMessage}
           scrollToTopTrigger={scrollToTopTrigger}
         />
       </div>

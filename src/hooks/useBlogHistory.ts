@@ -30,12 +30,36 @@ function historyDtoToItem(
 }
 
 async function fetchHistory(): Promise<BlogHistoryItem[]> {
-  const res = await fetch("/api/history", { credentials: "include" });
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    throw new Error("인터넷에 연결되어 있지 않습니다. 네트워크를 확인한 뒤 다시 시도해주세요.");
+  }
+
+  let res: Response;
+  try {
+    res = await fetch("/api/history", { credentials: "include" });
+  } catch (err) {
+    const isNetworkError =
+      err instanceof TypeError &&
+      (err.message === "Failed to fetch" || (err.message as string).includes("network"));
+    if (isNetworkError) {
+      throw new Error(
+        "인터넷에 연결되어 있지 않거나 서버에 연결할 수 없습니다. 네트워크를 확인한 뒤 다시 시도해주세요."
+      );
+    }
+    throw new Error("히스토리를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.");
+  }
+
+  const data = await res.json();
+
   if (!res.ok) {
     if (res.status === 401) return [];
-    throw new Error("히스토리를 불러올 수 없습니다.");
+    const message =
+      data && typeof data === "object" && "error" in data && typeof data.error === "string"
+        ? data.error
+        : "요청에 실패했습니다. 잠시 후 다시 시도해주세요.";
+    throw new Error(message);
   }
-  const data = await res.json();
+
   const items = Array.isArray(data?.items) ? data.items : [];
   return items.map((row: Record<string, unknown>) =>
     historyDtoToItem({
@@ -50,13 +74,35 @@ async function fetchHistory(): Promise<BlogHistoryItem[]> {
 }
 
 async function deleteHistory(id: string): Promise<void> {
-  const res = await fetch(`/api/history/${id}`, {
-    method: "DELETE",
-    credentials: "include",
-  });
+  if (typeof navigator !== "undefined" && !navigator.onLine) {
+    throw new Error("인터넷에 연결되어 있지 않습니다. 네트워크를 확인한 뒤 다시 시도해주세요.");
+  }
+
+  let res: Response;
+  try {
+    res = await fetch(`/api/history/${id}`, {
+      method: "DELETE",
+      credentials: "include",
+    });
+  } catch (err) {
+    const isNetworkError =
+      err instanceof TypeError &&
+      (err.message === "Failed to fetch" || (err.message as string).includes("network"));
+    if (isNetworkError) {
+      throw new Error(
+        "인터넷에 연결되어 있지 않거나 서버에 연결할 수 없습니다. 네트워크를 확인한 뒤 다시 시도해주세요."
+      );
+    }
+    throw new Error("삭제 요청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
+  }
+
   if (!res.ok && res.status !== 204) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error((err as { error?: string }).error ?? "삭제에 실패했습니다.");
+    const data = await res.json().catch(() => ({}));
+    const message =
+      data && typeof data === "object" && "error" in data && typeof (data as { error?: string }).error === "string"
+        ? (data as { error: string }).error
+        : "요청에 실패했습니다. 잠시 후 다시 시도해주세요.";
+    throw new Error(message);
   }
 }
 
@@ -74,12 +120,15 @@ export function useBlogHistory(userId: string | null) {
   const {
     data: apiItems = [],
     isLoading: isLoadingApi,
+    isError: isFetchError,
+    error: fetchErrorRaw,
     refetch: refetchApi,
   } = useQuery({
     queryKey: [...HISTORY_QUERY_KEY, userId],
     queryFn: fetchHistory,
     enabled: Boolean(userId),
     staleTime: 30_000,
+    retry: false,
   });
 
   const deleteMutation = useMutation({
@@ -92,6 +141,25 @@ export function useBlogHistory(userId: string | null) {
   /** 로그인 시 DB(API) 값, 비로그인 시 로컬 스토리지 값 */
   const historyItems = userId ? apiItems : localItems;
   const isLoading = Boolean(userId && isLoadingApi);
+
+  const fetchError: string | null =
+    isFetchError && fetchErrorRaw
+      ? typeof fetchErrorRaw === "string"
+        ? fetchErrorRaw
+        : fetchErrorRaw instanceof Error
+          ? fetchErrorRaw.message
+          : "요청에 실패했습니다. 잠시 후 다시 시도해주세요."
+      : null;
+
+  const deleteErrorRaw = deleteMutation.error;
+  const deleteError: string | null =
+    deleteErrorRaw != null
+      ? typeof deleteErrorRaw === "string"
+        ? deleteErrorRaw
+        : deleteErrorRaw instanceof Error
+          ? deleteErrorRaw.message
+          : "요청에 실패했습니다. 잠시 후 다시 시도해주세요."
+      : null;
 
   const refetch = useCallback(() => {
     if (userId) {
@@ -117,8 +185,11 @@ export function useBlogHistory(userId: string | null) {
   return {
     historyItems,
     isLoading,
+    fetchError,
     refetch,
     removeItem,
     isDeleting: deleteMutation.isPending,
+    deleteError,
+    clearDeleteError: deleteMutation.reset,
   };
 }

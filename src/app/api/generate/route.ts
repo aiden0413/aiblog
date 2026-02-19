@@ -26,19 +26,28 @@ function parseBody(body: unknown): GenerateRequestDto | null {
 }
 
 export async function POST(request: NextRequest) {
+  let body: unknown;
   try {
-    const body = await request.json();
-    const params = parseBody(body);
-    if (!params) {
-      return NextResponse.json(
-        {
-          error:
-            "잘못된 요청입니다. topic, keywords, style(tutorial|til|troubleshooting)를 확인해주세요.",
-        },
-        { status: 400 }
-      );
-    }
+    body = await request.json();
+  } catch {
+    return NextResponse.json(
+      { error: "요청 형식이 올바르지 않습니다. 다시 시도해주세요." },
+      { status: 400 }
+    );
+  }
 
+  const params = parseBody(body);
+  if (!params) {
+    return NextResponse.json(
+      {
+        error:
+          "입력 내용을 확인해주세요. 블로그 주제를 입력하고, 글 스타일(튜토리얼 / TIL / 트러블슈팅)을 선택해주세요.",
+      },
+      { status: 400 }
+    );
+  }
+
+  try {
     const supabase = await getSupabase();
     let userId: string | undefined;
 
@@ -71,7 +80,8 @@ export async function POST(request: NextRequest) {
 
     return NextResponse.json(dto);
   } catch (err) {
-    const message = err instanceof Error ? err.message : "서버 오류";
+    const message =
+      err instanceof Error ? err.message : "서버 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
     return NextResponse.json({ error: message }, { status: 500 });
   }
 }
