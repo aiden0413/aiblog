@@ -218,6 +218,11 @@ export default function CreatePage() {
           />
         )}
         <ResultSection
+          key={
+            displayResult
+              ? `${displayResult.title}-${displayResult.content.length}`
+              : "empty"
+          }
           result={displayResult}
           isPending={isPending}
           scrollToTopTrigger={scrollToTopTrigger}

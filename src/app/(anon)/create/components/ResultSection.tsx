@@ -38,12 +38,44 @@ function copyToClipboard(text: string): Promise<void> {
   return navigator.clipboard.writeText(text);
 }
 
+function ResultSectionSkeleton() {
+  return (
+    <div className="flex flex-col space-y-4" aria-label="로딩 중">
+      <div className="h-6 w-48 rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
+      <div className="space-y-4">
+        <div>
+          <div className="h-4 w-12 rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse mb-2" />
+          <div className="min-h-10 w-full rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
+        </div>
+        <div>
+          <div className="h-4 w-14 rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse mb-2" />
+          <div className="min-h-10 w-full rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
+        </div>
+        <div>
+          <div className="h-4 w-16 rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse mb-2" />
+          <div className="min-h-10 w-full rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
+        </div>
+      </div>
+      <div className="flex flex-col min-w-0">
+        <div className="h-4 w-14 rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse mb-2" />
+        <div className="w-full h-[600px] min-w-0 rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
+        <div className="flex gap-2 pt-2">
+          <div className="h-10 min-w-[5rem] rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
+          <div className="h-10 min-w-[5rem] rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
+          <div className="h-10 min-w-[5rem] rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
+        </div>
+      </div>
+    </div>
+  );
+}
+
 export function ResultSection({
   result,
   isPending = false,
   scrollToTopTrigger = 0,
 }: ResultSectionProps) {
   const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
+  const [contentReady, setContentReady] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -111,37 +143,16 @@ ${bodyHtml}
       )}
       <div
         ref={scrollContainerRef}
-        className="p-6 flex-1 min-h-0 overflow-x-hidden overflow-y-auto"
+        className="p-6 flex-1 min-h-0 overflow-x-hidden overflow-y-auto relative"
       >
       {isPending ? (
-        <div className="flex flex-col space-y-4" aria-label="로딩 중">
-          <div className="h-6 w-48 rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
-          <div className="space-y-4">
-            <div>
-              <div className="h-4 w-12 rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse mb-2" />
-              <div className="min-h-10 w-full rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
-            </div>
-            <div>
-              <div className="h-4 w-14 rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse mb-2" />
-              <div className="min-h-10 w-full rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
-            </div>
-            <div>
-              <div className="h-4 w-16 rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse mb-2" />
-              <div className="min-h-10 w-full rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
-            </div>
-          </div>
-          <div className="flex flex-col min-w-0">
-            <div className="h-4 w-14 rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse mb-2" />
-            <div className="w-full h-[600px] min-w-0 rounded border border-zinc-200 dark:border-zinc-700 bg-zinc-100 dark:bg-zinc-800 animate-pulse" />
-            <div className="flex gap-2 pt-2">
-              <div className="h-10 min-w-[5rem] rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
-              <div className="h-10 min-w-[5rem] rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
-              <div className="h-10 min-w-[5rem] rounded bg-zinc-200 dark:bg-zinc-700 animate-pulse" />
-            </div>
-          </div>
-        </div>
+        <ResultSectionSkeleton />
       ) : result ? (
-        <div className="flex flex-col space-y-4">
+        <>
+          <div
+            className={`flex flex-col space-y-4 ${contentReady ? "" : "invisible"}`}
+            aria-hidden={!contentReady}
+          >
           <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200 shrink-0">
             생성된 블로그 글
           </h2>
@@ -212,6 +223,7 @@ ${bodyHtml}
                 editable={true}
                 height="600px"
                 minHeight="400px"
+                onReady={() => setContentReady(true)}
               />
             </div>
             <div className="flex gap-2 shrink-0 pt-2">
@@ -241,7 +253,13 @@ ${bodyHtml}
               />
             </div>
           </div>
-        </div>
+          </div>
+          {!contentReady && (
+            <div className="absolute inset-0 p-6 bg-zinc-50 dark:bg-zinc-950 overflow-y-auto">
+              <ResultSectionSkeleton />
+            </div>
+          )}
+        </>
       ) : (
         <div className="h-full flex items-center justify-center text-zinc-400 dark:text-zinc-500 text-sm">
           주제와 키워드를 입력한 뒤 생성 버튼을 눌러주세요.

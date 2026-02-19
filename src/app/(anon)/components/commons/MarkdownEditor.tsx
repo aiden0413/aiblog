@@ -50,6 +50,8 @@ interface MarkdownEditorProps {
   height?: string;
   /** 에디터 영역 최소 높이. */
   minHeight?: string;
+  /** 에디터가 마운트·초기화된 후 호출됨 (스켈레톤 해제용) */
+  onReady?: () => void;
 }
 
 export function MarkdownEditor({
@@ -57,10 +59,15 @@ export function MarkdownEditor({
   editable = true,
   height = "400px",
   minHeight,
+  onReady,
 }: MarkdownEditorProps) {
   const { resolvedTheme } = useTheme();
   const containerRef = useRef<HTMLDivElement>(null);
   const editorRef = useRef<ReturnType<typeof Editor.factory> | null>(null);
+  const onReadyRef = useRef(onReady);
+  useEffect(() => {
+    onReadyRef.current = onReady;
+  }, [onReady]);
   const isDark = resolvedTheme === "dark";
 
   useEffect(() => {
@@ -80,23 +87,13 @@ export function MarkdownEditor({
 
     if (editable) scheduleEditorBlur(editor);
 
+    onReadyRef.current?.();
+
     return () => {
       editor.destroy();
       editorRef.current = null;
     };
-  }, []); /* Editor 인스턴스는 마운트 시 한 번만 초기화. */
-
-  useEffect(() => {
-    if (editorRef.current && !editable && text !== undefined) {
-      editorRef.current.setMarkdown(text);
-    }
-  }, [text, editable]);
-
-  // result가 바뀔 때(다른 글 불러올 때) 포커스 해제
-  useEffect(() => {
-    if (!editable) return;
-    scheduleEditorBlur(editorRef.current);
-  }, [text, editable]);
+  }, [text]); /* Editor 인스턴스는 마운트 시 한 번만 초기화. */
 
   return (
     <div
