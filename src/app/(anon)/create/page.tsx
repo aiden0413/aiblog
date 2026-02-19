@@ -16,7 +16,6 @@ import { HiChevronUp, HiChevronDown } from "react-icons/hi";
 import { MdHistory } from "react-icons/md";
 
 const MOBILE_FORM_ID = "create-blog-form-mobile";
-const MOBILE_CLOSED_HEIGHT = 48;
 
 function HistoryToggleButton({
   onClick,
@@ -153,47 +152,22 @@ export default function CreatePage() {
   const errorMessage = generateError ?? null;
 
   return (
-    <main
-      className={`flex h-full min-h-0 w-full flex-1 flex-col min-[900px]:flex-row relative ${isOffline ? "pt-12" : ""}`}
-    >
-      {isOffline && (
-        <div
-          className="absolute top-0 left-0 right-0 z-50 flex items-center justify-center gap-2 bg-amber-500 text-white px-4 py-2.5 text-sm font-medium shadow-md"
-          role="alert"
-        >
-          <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414" />
-          </svg>
-          <span>인터넷에 연결되어 있지 않습니다. 블로그 생성을 하려면 네트워크를 확인해주세요.</span>
-        </div>
-      )}
+    <main className="flex h-full min-h-0 w-full flex-1 flex-col min-[900px]:flex-row relative">
       <aside className="hidden w-80 shrink-0 border-r border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900 min-[900px]:flex min-[900px]:flex-col">
         <InputSection {...inputSectionProps} />
       </aside>
 
       <div
         data-allow-transition
-        className={`fixed left-0 right-0 flex flex-col overflow-hidden border-t border-zinc-200 bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] dark:border-zinc-700 dark:bg-zinc-900 dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] min-[900px]:hidden ${isInputOpen ? "z-50" : "z-30"}`}
+        className="fixed left-0 right-0 flex flex-col overflow-hidden bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] dark:bg-zinc-900 dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] min-[900px]:hidden z-30"
         style={{
-          bottom: isInputOpen ? 0 : "calc(1rem + 40px + max(1rem, env(safe-area-inset-bottom)))",
-          height: isInputOpen ? "100dvh" : `${MOBILE_CLOSED_HEIGHT}px`,
+          bottom: isInputOpen ? 0 : "calc(3rem + 4rem + max(1rem, env(safe-area-inset-bottom)))",
+          height: isInputOpen ? "100dvh" : 0,
           paddingTop: "env(safe-area-inset-top, 0px)",
           transition: "bottom 300ms cubic-bezier(0.32, 0.72, 0, 1), height 300ms cubic-bezier(0.32, 0.72, 0, 1)",
           width: "100%",
         }}
       >
-        <button
-          type="button"
-          onClick={() => setIsInputOpen((prev) => !prev)}
-          className="shrink-0 h-12 flex flex-col items-center justify-center bg-white dark:bg-zinc-900"
-          aria-label={isInputOpen ? "입력 영역 접기" : "입력 영역 펼치기"}
-        >
-          {isInputOpen ? (
-            <HiChevronDown className="h-6 w-6 text-zinc-600 dark:text-zinc-400" />
-          ) : (
-            <HiChevronUp className="h-6 w-6 text-zinc-600 dark:text-zinc-400" />
-          )}
-        </button>
         <div
           className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden p-6 pb-24 transition-[max-height] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]"
           style={{
@@ -209,21 +183,32 @@ export default function CreatePage() {
           />
         </div>
       </div>
-      <div
-        className="fixed left-0 right-0 bottom-0 z-40 flex gap-2 bg-white px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))] min-[900px]:hidden dark:bg-zinc-900"
-        style={{ width: "100%" }}
-      >
-        <Button
-          text={isPending ? "생성 중..." : "블로그 글 생성"}
-          type="submit"
-          form={MOBILE_FORM_ID}
-          disabled={isPending}
-          className="flex-1 min-w-0"
-        />
-        <HistoryToggleButton
-          onClick={handleHistoryToggle}
-          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded text-zinc-600 outline-none hover:bg-zinc-100 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white dark:focus:ring-purple-600"
-        />
+      <div className="fixed left-0 right-0 bottom-0 z-50 flex flex-col min-[900px]:hidden w-full bg-white dark:bg-zinc-900">
+        <button
+          type="button"
+          onClick={() => setIsInputOpen((prev) => !prev)}
+          className="shrink-0 h-12 flex flex-col items-center justify-center bg-white dark:bg-zinc-900"
+          aria-label={isInputOpen ? "입력 영역 접기" : "입력 영역 펼치기"}
+        >
+          {isInputOpen ? (
+            <HiChevronDown className="h-6 w-6 text-zinc-600 dark:text-zinc-400" />
+          ) : (
+            <HiChevronUp className="h-6 w-6 text-zinc-600 dark:text-zinc-400" />
+          )}
+        </button>
+        <div className="flex gap-2 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
+          <Button
+            text={isPending ? "생성 중..." : "블로그 글 생성"}
+            type="submit"
+            form={MOBILE_FORM_ID}
+            disabled={isPending}
+            className="flex-1 min-w-0"
+          />
+          <HistoryToggleButton
+            onClick={handleHistoryToggle}
+            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded text-zinc-600 outline-none hover:bg-zinc-100 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white dark:focus:ring-purple-600"
+          />
+        </div>
       </div>
 
       <HistoryToggleButton
@@ -264,6 +249,7 @@ export default function CreatePage() {
           isPending={isPending}
           errorMessage={errorMessage}
           scrollToTopTrigger={scrollToTopTrigger}
+          isOffline={isOffline}
         />
       </div>
     </main>
