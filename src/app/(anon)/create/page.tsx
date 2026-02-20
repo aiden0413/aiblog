@@ -168,6 +168,16 @@ export default function CreatePage() {
           width: "100%",
         }}
       >
+        {isInputOpen && (
+          <button
+            type="button"
+            onClick={() => setIsInputOpen(false)}
+            className="shrink-0 h-12 flex flex-col items-center justify-center"
+            aria-label="입력 영역 접기"
+          >
+            <HiChevronDown className="h-6 w-6 text-zinc-600 dark:text-zinc-400" />
+          </button>
+        )}
         <div
           className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden p-6 pb-24 transition-[max-height] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]"
           style={{
@@ -184,30 +194,28 @@ export default function CreatePage() {
         </div>
       </div>
       <div className="fixed left-0 right-0 bottom-0 z-50 flex flex-col min-[900px]:hidden w-full bg-white dark:bg-zinc-900">
-        <button
-          type="button"
-          onClick={() => setIsInputOpen((prev) => !prev)}
-          className="shrink-0 h-12 flex flex-col items-center justify-center bg-white dark:bg-zinc-900"
-          aria-label={isInputOpen ? "입력 영역 접기" : "입력 영역 펼치기"}
-        >
-          {isInputOpen ? (
-            <HiChevronDown className="h-6 w-6 text-zinc-600 dark:text-zinc-400" />
-          ) : (
+        {!isInputOpen && (
+          <button
+            type="button"
+            onClick={() => setIsInputOpen(true)}
+            className="shrink-0 h-12 flex flex-col items-center justify-center bg-white dark:bg-zinc-900"
+            aria-label="입력 영역 펼치기"
+          >
             <HiChevronUp className="h-6 w-6 text-zinc-600 dark:text-zinc-400" />
-          )}
-        </button>
+          </button>
+        )}
         <div className="flex gap-2 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-          <Button
-            text={isPending ? "생성 중..." : "블로그 글 생성"}
-            type="submit"
-            form={MOBILE_FORM_ID}
-            disabled={isPending}
-            className="flex-1 min-w-0"
-          />
-          <HistoryToggleButton
-            onClick={handleHistoryToggle}
-            className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded text-zinc-600 outline-none hover:bg-zinc-100 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white dark:focus:ring-purple-600"
-          />
+            <Button
+              text={isPending ? "생성 중..." : "블로그 글 생성"}
+              type="submit"
+              form={MOBILE_FORM_ID}
+              disabled={isPending}
+              className="flex-1 min-w-0"
+            />
+            <HistoryToggleButton
+              onClick={handleHistoryToggle}
+              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded text-zinc-600 outline-none hover:bg-zinc-100 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white dark:focus:ring-purple-600"
+            />
         </div>
       </div>
 

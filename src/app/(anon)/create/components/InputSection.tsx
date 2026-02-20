@@ -4,12 +4,19 @@ import { FormEvent } from "react";
 import type { StyleType } from "@/backend/applications/prompt/dtos/GenerateRequestDto";
 import { TextInput } from "../../components/commons/TextInput";
 import { Button } from "../../components/commons/Button";
+import { ChipInput } from "./ChipInput";
 
 const STYLE_OPTIONS: { value: StyleType; label: string }[] = [
   { value: "tutorial", label: "튜토리얼" },
   { value: "til", label: "TIL" },
   { value: "troubleshooting", label: "트러블슈팅" },
 ];
+
+const STYLE_DESCRIPTIONS: Record<StyleType, string> = {
+  tutorial: "단계별로 따라 할 수 있는 가이드 형식입니다.",
+  til: "오늘 배운 내용을 짧고 핵심 위주로 정리한 형식입니다. (Today I Learned)",
+  troubleshooting: "문제 상황 → 원인 분석 → 해결 과정을 정리한 형식입니다.",
+};
 
 export interface InputSectionProps {
   topic: string;
@@ -56,13 +63,13 @@ export function InputSection({
             required
           />
 
-          <TextInput
-            id="keywords"
-            label="키워드 (쉼표로 구분)"
-            type="text"
+          <ChipInput
+            id="keywords-input"
+            name="keywords"
+            label="키워드 (Enter 또는 쉼표로 추가)"
             value={keywordsInput}
-            onChange={(e) => onKeywordsChange(e.target.value)}
-            placeholder="예: React, Hooks, 상태관리"
+            onChange={onKeywordsChange}
+            placeholder="예: React, Hooks"
             required
           />
 
@@ -86,6 +93,13 @@ export function InputSection({
                 </button>
               ))}
             </div>
+            <p
+              className="text-xs text-zinc-500 dark:text-zinc-400 pt-1"
+              role="status"
+              aria-live="polite"
+            >
+              {STYLE_DESCRIPTIONS[style]}
+            </p>
           </div>
         </div>
 
