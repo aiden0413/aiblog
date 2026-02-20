@@ -144,7 +144,7 @@ ${bodyHtml}
     <section className="flex-1 min-w-0 min-h-0 flex flex-col overflow-x-hidden bg-zinc-50 dark:bg-zinc-950 relative min-[900px]:h-full max-h-[calc(100dvh-81px-120px)] min-[900px]:max-h-none">
       {isOffline && (
         <div
-          className="shrink-0 flex items-center justify-center gap-2 bg-amber-500 text-white px-4 py-2.5 text-sm font-medium"
+          className="shrink-0 flex items-center justify-center gap-2 bg-amber-500 text-white px-4 py-2 text-sm font-medium"
           role="alert"
         >
           <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">

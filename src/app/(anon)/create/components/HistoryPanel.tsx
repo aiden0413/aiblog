@@ -107,8 +107,8 @@ export function HistoryPanel({
           </div>
           {(fetchError ?? deleteError) && (
             <div className="shrink-0 border-b border-zinc-200 px-3 py-2 dark:border-zinc-700">
-              <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 py-2 pl-2.5 pr-2 dark:border-amber-800 dark:bg-amber-950/40">
-                <span className="mt-0.5 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden>
+              <div className="flex items-start gap-2 rounded-md border border-amber-200 bg-amber-50 py-2 pl-2 pr-2 dark:border-amber-800 dark:bg-amber-950/40">
+                <span className="mt-1 shrink-0 text-amber-600 dark:text-amber-400" aria-hidden>
                   <svg className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
                   </svg>
@@ -117,10 +117,10 @@ export function HistoryPanel({
                   <p className="text-xs font-medium text-amber-800 dark:text-amber-200">
                     {fetchError ? "불러오기 실패" : "삭제 실패"}
                   </p>
-                  <p className="mt-0.5 text-xs text-amber-700 dark:text-amber-300 break-words">
+                  <p className="mt-1 text-xs text-amber-700 dark:text-amber-300 break-words">
                     {fetchError ?? deleteError}
                   </p>
-                  <div className="mt-1.5">
+                  <div className="mt-2">
                     {fetchError && onRetryFetch ? (
                       <button
                         type="button"
@@ -181,7 +181,7 @@ export function HistoryPanel({
                           e.stopPropagation();
                           setPendingDeleteIndex(index);
                         }}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1.5 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-600 dark:hover:bg-zinc-600 dark:hover:text-zinc-200"
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-2 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-600 dark:hover:bg-zinc-600 dark:hover:text-zinc-200"
                         aria-label="항목 삭제"
                       >
                         <HiOutlineTrash className="h-4 w-4" />

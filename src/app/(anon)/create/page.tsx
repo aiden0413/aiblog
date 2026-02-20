@@ -12,7 +12,6 @@ import { InputSection } from "./components/InputSection";
 import { ResultSection } from "./components/ResultSection";
 import { HistoryPanel } from "./components/HistoryPanel";
 import { Button } from "../components/commons/Button";
-import { HiChevronUp, HiChevronDown } from "react-icons/hi";
 import { MdHistory } from "react-icons/md";
 
 const MOBILE_FORM_ID = "create-blog-form-mobile";
@@ -153,70 +152,47 @@ export default function CreatePage() {
 
   return (
     <main className="flex h-full min-h-0 w-full flex-1 flex-col min-[900px]:flex-row relative">
+      {/* 데스크톱: 사이드바에 입력 폼 */}
       <aside className="hidden w-80 shrink-0 border-r border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900 min-[900px]:flex min-[900px]:flex-col">
         <InputSection {...inputSectionProps} />
       </aside>
 
+      {/* 모바일: 1) 헤더(레이아웃) 2) ResultSection(중앙) 3) 하단 블로그 글 생성 버튼. 결과 영역에 하단 바 높이만큼 padding 적용. */}
+      {/* 모바일 입력 패널: InputSection이 열기/닫기 버튼과 입력 폼을 함께 렌더. height 전환으로 열림/닫힘 애니메이션. */}
       <div
         data-allow-transition
         className="fixed left-0 right-0 flex flex-col overflow-hidden bg-white shadow-[0_-4px_20px_rgba(0,0,0,0.1)] dark:bg-zinc-900 dark:shadow-[0_-4px_20px_rgba(0,0,0,0.3)] min-[900px]:hidden z-30"
         style={{
-          bottom: isInputOpen ? 0 : "calc(3rem + 4rem + max(1rem, env(safe-area-inset-bottom)))",
-          height: isInputOpen ? "100dvh" : 0,
+          bottom: "4.5rem",
+          height: isInputOpen ? "calc(100dvh - 4.5rem)" : "3rem",
           paddingTop: "env(safe-area-inset-top, 0px)",
-          transition: "bottom 300ms cubic-bezier(0.32, 0.72, 0, 1), height 300ms cubic-bezier(0.32, 0.72, 0, 1)",
+          transition: "height 300ms cubic-bezier(0.32, 0.72, 0, 1)",
           width: "100%",
         }}
       >
-        {isInputOpen && (
-          <button
-            type="button"
-            onClick={() => setIsInputOpen(false)}
-            className="shrink-0 h-12 flex flex-col items-center justify-center"
-            aria-label="입력 영역 접기"
-          >
-            <HiChevronDown className="h-6 w-6 text-zinc-600 dark:text-zinc-400" />
-          </button>
-        )}
-        <div
-          className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden p-6 pb-24 transition-[max-height] duration-300 ease-[cubic-bezier(0.32,0.72,0,1)]"
-          style={{
-            maxHeight: isInputOpen ? "none" : 0,
-            overflow: isInputOpen ? "visible" : "hidden",
-            padding: isInputOpen ? undefined : 0,
-          }}
-        >
-          <InputSection
-            {...inputSectionProps}
-            hideSubmitButton
-            formId={MOBILE_FORM_ID}
-          />
-        </div>
+        <InputSection
+          {...inputSectionProps}
+          hideSubmitButton
+          formId={MOBILE_FORM_ID}
+          isPanelOpen={isInputOpen}
+          onPanelOpenChange={setIsInputOpen}
+        />
       </div>
-      <div className="fixed left-0 right-0 bottom-0 z-50 flex flex-col min-[900px]:hidden w-full bg-white dark:bg-zinc-900">
-        {!isInputOpen && (
-          <button
-            type="button"
-            onClick={() => setIsInputOpen(true)}
-            className="shrink-0 h-12 flex flex-col items-center justify-center bg-white dark:bg-zinc-900"
-            aria-label="입력 영역 펼치기"
-          >
-            <HiChevronUp className="h-6 w-6 text-zinc-600 dark:text-zinc-400" />
-          </button>
-        )}
-        <div className="flex gap-2 px-4 pt-4 pb-[max(1rem,env(safe-area-inset-bottom))]">
-            <Button
-              text={isPending ? "생성 중..." : "블로그 글 생성"}
-              type="submit"
-              form={MOBILE_FORM_ID}
-              disabled={isPending}
-              className="flex-1 min-w-0"
-            />
-            <HistoryToggleButton
-              onClick={handleHistoryToggle}
-              className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded text-zinc-600 outline-none hover:bg-zinc-100 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white dark:focus:ring-purple-600"
-            />
-        </div>
+      {/* 모바일 하단 고정 바: 블로그 글 생성 버튼 및 히스토리 버튼. 입력 패널과 독립적으로 항상 하단에 고정. */}
+      <div
+        className="fixed left-0 right-0 bottom-0 z-50 flex items-center gap-2 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-white dark:bg-zinc-900 min-[900px]:hidden"
+      >
+        <Button
+          text={isPending ? "생성 중..." : "블로그 글 생성"}
+          type="submit"
+          form={MOBILE_FORM_ID}
+          disabled={isPending}
+          className="flex-1 min-w-0"
+        />
+        <HistoryToggleButton
+          onClick={handleHistoryToggle}
+          className="inline-flex h-10 w-10 shrink-0 items-center justify-center rounded text-zinc-600 outline-none hover:bg-zinc-100 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white dark:focus:ring-purple-600"
+        />
       </div>
 
       <HistoryToggleButton
@@ -237,7 +213,7 @@ export default function CreatePage() {
         onDismissDeleteError={clearHistoryDeleteError}
       />
 
-      {/* 결과 영역. 히스토리 패널 열림 시 배경 오버레이 표시, 오버레이 클릭 시 패널 닫힘 */}
+      {/* 결과 표시 영역(모바일에서 헤더·본문·하단버튼 3구역의 중앙). 히스토리 패널 열림 시 배경 오버레이 표시. */}
       <div className="relative flex-1 min-w-0 min-h-0 flex flex-col">
         {isHistoryOpen && (
           <button

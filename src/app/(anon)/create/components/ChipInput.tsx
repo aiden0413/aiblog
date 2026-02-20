@@ -90,7 +90,7 @@ export function ChipInput({
             <button
               type="button"
               onClick={() => removeChip(i)}
-              className="rounded p-0.5 hover:bg-purple-200 dark:hover:bg-purple-800"
+              className="rounded p-1 hover:bg-purple-200 dark:hover:bg-purple-800"
               aria-label={`${chip} 제거`}
             >
               <HiX className="h-3.5 w-3.5" />
