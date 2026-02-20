@@ -140,7 +140,7 @@ export function InputSection({
           )}
         </button>
         <div
-          className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto overflow-x-hidden p-6"
+          className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto p-6"
           style={{ minHeight: 0 }}
         >
           {formContent}

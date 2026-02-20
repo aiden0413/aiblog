@@ -37,13 +37,13 @@ export function TextInput({
   const baseStyles =
     "h-10 w-full rounded border bg-white px-3 py-2 text-foreground outline-none placeholder:text-zinc-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500";
   const stateStyles = error
-    ? "border-red-500 focus:border-red-600 focus:ring-2 focus:ring-red-200 dark:border-red-600 dark:focus:ring-red-900"
-    : "border-purple-200 focus:border-purple-500 focus:ring-2 focus:ring-purple-200 dark:border-zinc-600 dark:focus:border-purple-500 dark:focus:ring-purple-900";
+    ? "border-red-500 focus:border-red-600 focus:outline focus:outline-2 focus:outline-red-200 focus:outline-offset-0 dark:border-red-600 dark:focus:outline-red-900"
+    : "border-purple-200 focus:border-purple-500 focus:outline focus:outline-2 focus:outline-purple-200 focus:outline-offset-0 dark:border-zinc-600 dark:focus:border-purple-500 dark:focus:outline-purple-900";
   const disabledStyles =
     "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-purple-50 dark:disabled:bg-zinc-800";
 
   const inlineStyles =
-    "min-w-[5rem] w-24 border-0 bg-transparent py-1 h-auto text-sm outline-none focus:outline-none focus:ring-0 dark:placeholder-zinc-500";
+    "min-w-[5rem] w-24 border-0 bg-transparent h-auto outline-none focus:outline-none focus:ring-0 dark:placeholder-zinc-500";
 
   const inputEl = (
     <input

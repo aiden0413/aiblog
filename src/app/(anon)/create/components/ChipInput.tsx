@@ -52,10 +52,28 @@ export function ChipInput({
   };
 
   const handleKeyDown = (e: KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === "Enter" || e.key === ",") {
+    if (e.key === "Enter") {
       e.preventDefault();
       addChip(inputValue);
       setInputValue("");
+    }
+  };
+
+  const handleInputChange = (newValue: string) => {
+    if (newValue.includes(",")) {
+      const parts = newValue.split(",");
+      const toAdd = parts.slice(0, -1).map((p) => p.trim()).filter(Boolean);
+      const remainder = parts[parts.length - 1];
+      const merged = [...chips];
+      for (const w of toAdd) {
+        if (w && !merged.includes(w)) merged.push(w);
+      }
+      if (merged.length !== chips.length) {
+        onChange(joinChips(merged));
+      }
+      setInputValue(remainder);
+    } else {
+      setInputValue(newValue);
     }
   };
 
@@ -73,14 +91,14 @@ export function ChipInput({
   };
 
   return (
-    <div className="space-y-2">
+    <div>
       <label
         htmlFor={id}
-        className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+        className="block text-sm font-medium text-black mb-1 dark:text-zinc-200"
       >
         {label}
       </label>
-      <div className="flex flex-wrap gap-2 rounded-md border border-zinc-300 bg-white px-3 py-2 dark:border-zinc-600 dark:bg-zinc-800 focus-within:border-purple-500 focus-within:ring-2 focus-within:ring-purple-200 dark:focus-within:border-purple-500 dark:focus-within:ring-purple-900">
+      <div className="flex flex-wrap items-center gap-2 min-h-10 rounded border border-purple-200 bg-white px-3 py-2 text-foreground placeholder:text-zinc-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500 focus-within:border-purple-500 dark:focus-within:border-purple-500">
         {chips.map((chip, i) => (
           <span
             key={`${chip}-${i}`}
@@ -101,11 +119,11 @@ export function ChipInput({
           id={id}
           variant="inline"
           value={inputValue}
-          onChange={(e) => setInputValue(e.target.value)}
+          onChange={(e) => handleInputChange(e.target.value)}
           onKeyDown={handleKeyDown}
           onPaste={handlePaste}
           placeholder={chips.length > 0 ? "" : placeholder}
-          className="shrink-0 text-zinc-900 placeholder-zinc-400 dark:text-zinc-100"
+          className="min-w-0 flex-1 border-none ring-0 shadow-none text-zinc-900 placeholder-zinc-400 dark:text-zinc-100"
         />
       </div>
       <input
