@@ -43,7 +43,7 @@ export function TextInput({
     "disabled:cursor-not-allowed disabled:opacity-50 disabled:bg-purple-50 dark:disabled:bg-zinc-800";
 
   const inlineStyles =
-    "min-w-[5rem] w-24 border-0 bg-transparent h-auto outline-none focus:outline-none focus:ring-0 dark:placeholder-zinc-500";
+    "min-w-[5rem] w-24 h-6 border-0 bg-transparent py-0 outline-none focus:outline-none focus:ring-0 dark:placeholder-zinc-500 box-border";
 
   const inputEl = (
     <input

@@ -5,7 +5,6 @@ import type { StyleType } from "@/backend/applications/prompt/dtos/GenerateReque
 import { TextInput } from "../../components/commons/TextInput";
 import { Button } from "../../components/commons/Button";
 import { ChipInput } from "./ChipInput";
-import { HiChevronDown, HiChevronUp } from "react-icons/hi";
 
 const STYLE_OPTIONS: { value: StyleType; label: string }[] = [
   { value: "tutorial", label: "튜토리얼" },
@@ -32,10 +31,6 @@ export interface InputSectionProps {
   hideSubmitButton?: boolean;
   /** form 요소의 id. 외부 제출 버튼이 form 속성으로 이 폼을 참조할 때 사용. */
   formId?: string;
-  /** 모바일 패널 열림 여부. 지정 시 상단에 열기/닫기 버튼을 렌더링. */
-  isPanelOpen?: boolean;
-  /** 모바일 패널 열림 상태 변경 콜백. isPanelOpen과 함께 지정 시 패널 토글 버튼 표시. */
-  onPanelOpenChange?: (open: boolean) => void;
 }
 
 export function InputSection({
@@ -49,17 +44,15 @@ export function InputSection({
   isPending,
   hideSubmitButton = false,
   formId,
-  isPanelOpen,
-  onPanelOpenChange,
 }: InputSectionProps) {
-  const formContent = (
-    <>
+  return (
+    <div className="flex min-w-0 w-full max-w-full flex-col">
       <h1 className="text-xl font-bold text-zinc-900 dark:text-white">블로그 글 생성</h1>
       <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 mb-6">
         주제, 키워드, 글 스타일을 입력 후 생성 버튼을 누르세요.
       </p>
-      <form id={formId} onSubmit={onSubmit} className="flex flex-col flex-1 min-h-0">
-        <div className="flex-1 space-y-6 min-h-0 overflow-y-auto">
+      <form id={formId} onSubmit={onSubmit} className="flex flex-col">
+        <div className="space-y-6">
           <TextInput
             id="topic"
             label="블로그 주제"
@@ -121,37 +114,6 @@ export function InputSection({
           </div>
         )}
       </form>
-    </>
-  );
-
-  if (onPanelOpenChange != null && isPanelOpen != null) {
-    return (
-      <>
-        <button
-          type="button"
-          onClick={() => onPanelOpenChange(!isPanelOpen)}
-          className="shrink-0 h-12 flex flex-col items-center justify-center bg-white dark:bg-zinc-900"
-          aria-label={isPanelOpen ? "입력 영역 접기" : "입력 영역 펼치기"}
-        >
-          {isPanelOpen ? (
-            <HiChevronDown className="h-6 w-6 text-zinc-600 dark:text-zinc-400" />
-          ) : (
-            <HiChevronUp className="h-6 w-6 text-zinc-600 dark:text-zinc-400" />
-          )}
-        </button>
-        <div
-          className="flex min-h-0 min-w-0 flex-1 flex-col overflow-y-auto p-6"
-          style={{ minHeight: 0 }}
-        >
-          {formContent}
-        </div>
-      </>
-    );
-  }
-
-  return (
-    <div className="flex min-h-0 min-w-0 w-full max-w-full flex-col flex-1">
-      {formContent}
     </div>
   );
 }

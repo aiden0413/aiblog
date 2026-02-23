@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "../../lib/AuthProvider";
 import { QueryProvider } from "../../lib/QueryProvider";
@@ -20,6 +20,13 @@ const geistMono = Geist_Mono({
 export const metadata: Metadata = {
   title: "AI 블로그 글 생성",
   description: "주제와 키워드로 튜토리얼, TIL, 트러블슈팅 형식의 블로그 글을 자동 생성합니다.",
+};
+
+/** 키보드가 올라와도 하단 푸터(버튼 바)가 가려지지 않도록 레이아웃 뷰포트 리사이즈 */
+export const viewport: Viewport = {
+  width: "device-width",
+  initialScale: 1,
+  interactiveWidget: "resizes-content",
 };
 
 export default function RootLayout({

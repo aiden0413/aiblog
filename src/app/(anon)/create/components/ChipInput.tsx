@@ -98,7 +98,11 @@ export function ChipInput({
       >
         {label}
       </label>
-      <div className="flex flex-wrap items-center gap-2 min-h-10 rounded border border-purple-200 bg-white px-3 py-2 text-foreground placeholder:text-zinc-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500 focus-within:border-purple-500 dark:focus-within:border-purple-500">
+      <div
+        className={`flex flex-wrap items-center gap-2 rounded border border-purple-200 bg-white px-3 py-2 text-foreground placeholder:text-zinc-400 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100 dark:placeholder:text-zinc-500 focus-within:border-purple-500 dark:focus-within:border-purple-500 ${
+          chips.length === 0 ? "h-10" : "min-h-10"
+        }`}
+      >
         {chips.map((chip, i) => (
           <span
             key={`${chip}-${i}`}
