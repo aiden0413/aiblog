@@ -20,7 +20,6 @@ export default function CreatePage() {
     historyItems,
     refetch: refetchHistory,
     removeItem: removeHistoryItem,
-    isDeleting: isHistoryDeleting,
     fetchError: historyFetchError,
     deleteError: historyDeleteError,
     clearDeleteError: clearHistoryDeleteError,
@@ -112,7 +111,12 @@ export default function CreatePage() {
   };
 
   const handleRemoveHistoryItem = (index: number) => {
-    removeHistoryItem(index);
+    const itemToRemove = historyItems[index];
+    return removeHistoryItem(index).then(() => {
+      if (selectedHistoryResult && itemToRemove?.result === selectedHistoryResult) {
+        setSelectedHistoryResult(null);
+      }
+    });
   };
 
   const handleHistoryToggle = () => {
@@ -153,7 +157,6 @@ export default function CreatePage() {
         items={historyItems}
         onSelectItem={handleSelectHistoryItem}
         onRemoveItem={handleRemoveHistoryItem}
-        isDeleting={isHistoryDeleting}
         fetchError={historyFetchError}
         onRetryFetch={refetchHistory}
         deleteError={historyDeleteError}

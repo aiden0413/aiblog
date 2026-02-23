@@ -1,6 +1,7 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
+import Link from "next/link";
 import type { BlogHistoryItem } from "@/lib/blogHistory";
 import { STYLE_LABELS } from "@/lib/blogHistory";
 import { HiOutlineTrash } from "react-icons/hi";
@@ -15,10 +16,8 @@ interface HistoryPanelProps {
   items: BlogHistoryItem[];
   /** 항목 클릭 시 호출. 선택된 항목을 인자로 전달. */
   onSelectItem?: (item: BlogHistoryItem) => void;
-  /** 항목 삭제 시 호출. 삭제할 항목의 인덱스를 인자로 전달. */
-  onRemoveItem?: (index: number) => void;
-  /** 삭제 API 요청 중 여부. true일 때 확인 모달에 "삭제 중..." 표시. */
-  isDeleting?: boolean;
+  /** 항목 삭제 시 호출. 삭제할 항목의 인덱스를 인자로 전달. Promise를 반환하면 resolve된 뒤 모달을 닫음. */
+  onRemoveItem?: (index: number) => void | Promise<void>;
   /** 히스토리 목록 불러오기 실패 시 에러 메시지. 있으면 패널 상단에 표시. */
   fetchError?: string | null;
   /** 불러오기 재시도 콜백. fetchError가 있을 때 "다시 시도" 버튼에 사용. */
@@ -47,10 +46,10 @@ function formatDate(iso: string): string {
 
 export function HistoryPanel({
   isOpen,
+  onClose,
   items,
   onSelectItem,
   onRemoveItem,
-  isDeleting = false,
   fetchError = null,
   onRetryFetch,
   deleteError = null,
@@ -59,14 +58,21 @@ export function HistoryPanel({
   const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(null);
   const [deleteRequested, setDeleteRequested] = useState(false);
 
-  useEffect(() => {
-    if (!deleteRequested || isDeleting) return;
-    const id = setTimeout(() => {
-      setPendingDeleteIndex(null);
-      setDeleteRequested(false);
-    }, 0);
-    return () => clearTimeout(id);
-  }, [deleteRequested, isDeleting]);
+  const closeModal = () => {
+    setPendingDeleteIndex(null);
+    setDeleteRequested(false);
+  };
+
+  const handleConfirmRemove = () => {
+    if (pendingDeleteIndex === null) return;
+    const result = onRemoveItem?.(pendingDeleteIndex);
+    setDeleteRequested(true);
+    if (result != null && typeof (result as Promise<void>).then === "function") {
+      (result as Promise<void>).finally(closeModal);
+    } else {
+      closeModal();
+    }
+  };
 
   return (
     <>
@@ -74,15 +80,10 @@ export function HistoryPanel({
         isOpen={pendingDeleteIndex !== null}
         title="히스토리 삭제"
         message="이 항목을 히스토리에서 삭제할까요?"
-        confirmText={isDeleting ? "삭제 중..." : "삭제"}
+        confirmText={deleteRequested ? "삭제 중..." : "삭제"}
         cancelText="취소"
-        confirmDisabled={isDeleting}
-        onConfirm={() => {
-          if (pendingDeleteIndex !== null) {
-            onRemoveItem?.(pendingDeleteIndex);
-            setDeleteRequested(true);
-          }
-        }}
+        confirmDisabled={deleteRequested}
+        onConfirm={handleConfirmRemove}
         onCancel={() => {
           setPendingDeleteIndex(null);
           setDeleteRequested(false);
@@ -100,10 +101,17 @@ export function HistoryPanel({
         aria-label="히스토리"
       >
         <div className="flex h-full min-h-0 flex-col">
-          <div className="flex shrink-0 items-center border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
+          <div className="flex shrink-0 items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
             <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200">
               히스토리
             </h2>
+            <Link
+              href="/history"
+              onClick={onClose}
+              className="text-sm font-medium text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
+            >
+              세부 보기
+            </Link>
           </div>
           {(fetchError ?? deleteError) && (
             <div className="shrink-0 border-b border-zinc-200 px-3 py-2 dark:border-zinc-700">

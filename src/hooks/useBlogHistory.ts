@@ -161,23 +161,28 @@ export function useBlogHistory(userId: string | null) {
           : "요청에 실패했습니다. 잠시 후 다시 시도해주세요."
       : null;
 
-  const refetch = useCallback(() => {
+  const refetch = useCallback((): Promise<void> => {
     if (userId) {
-      void refetchApi();
-    } else {
-      setLocalItems(getHistory());
+      return refetchApi().then(() => {});
     }
+    setLocalItems(getHistory());
+    return Promise.resolve();
   }, [userId, refetchApi]);
 
   const removeItem = useCallback(
-    (index: number) => {
+    (index: number): Promise<void> => {
       const item = historyItems[index];
       if (userId && item?.id) {
-        deleteMutation.mutate(item.id, { onSuccess: () => refetch() });
-      } else if (!userId) {
+        return deleteMutation
+          .mutateAsync(item.id)
+          .then(() => refetch());
+      }
+      if (!userId) {
         removeHistoryItemAtIndex(index);
         setLocalItems(getHistory());
+        return new Promise((resolve) => setTimeout(resolve, 0));
       }
+      return Promise.resolve();
     },
     [userId, historyItems, deleteMutation, refetch]
   );

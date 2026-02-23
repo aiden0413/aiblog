@@ -2,7 +2,9 @@
 
 import { useState, useRef, useEffect } from "react";
 import Image from "next/image";
-import { HiLogout } from "react-icons/hi";
+import Link from "next/link";
+import { HiLogout, HiPencil, HiUser } from "react-icons/hi";
+import { MdHistory } from "react-icons/md";
 import type { User } from "@supabase/supabase-js";
 
 interface UserMenuProps {
@@ -62,16 +64,44 @@ export function UserMenu({ user, onSignIn, onSignOut }: UserMenuProps) {
       </button>
       {isOpen && (
         <div
-          className="absolute right-0 top-full z-50 mt-1 w-48 rounded-lg border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+          className="absolute right-0 top-full z-50 mt-1 min-w-[11rem] max-w-[16rem] rounded-md border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
           role="menu"
         >
+          <div
+            className="flex items-center gap-2 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-400"
+            role="presentation"
+          >
+            <HiUser className="h-4 w-4 shrink-0 text-zinc-400 dark:text-zinc-500" />
+            <span className="min-w-0 truncate" title={user.email ?? undefined}>
+              {user.email ?? (user.user_metadata?.name as string) ?? "계정"}
+            </span>
+          </div>
+          <div className="border-t border-zinc-200 dark:border-zinc-700" />
+          <Link
+            href="/create"
+            onClick={() => setIsOpen(false)}
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+            role="menuitem"
+          >
+            <HiPencil className="h-4 w-4 shrink-0" />
+            글 생성
+          </Link>
+          <Link
+            href="/history"
+            onClick={() => setIsOpen(false)}
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+            role="menuitem"
+          >
+            <MdHistory className="h-4 w-4 shrink-0" />
+            작성 히스토리
+          </Link>
           <button
             type="button"
             onClick={() => {
               onSignOut();
               setIsOpen(false);
             }}
-            className="flex w-full items-center gap-2 px-4 py-2 text-left text-sm text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
             role="menuitem"
           >
             <HiLogout className="h-4 w-4 shrink-0" />

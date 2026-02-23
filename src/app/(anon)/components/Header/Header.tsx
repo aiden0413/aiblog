@@ -24,6 +24,14 @@ export function Header() {
         </Link>
 
         <div className="flex items-center gap-2">
+          {mounted && isConfigured && isLoading && (
+            <div
+              className="flex shrink-0 items-center justify-center rounded-md p-2"
+              aria-hidden
+            >
+              <div className="h-8 w-8 rounded-full bg-zinc-200 animate-pulse dark:bg-zinc-700" />
+            </div>
+          )}
           {mounted && isConfigured && !isLoading && (
             <UserMenu
               user={user}
