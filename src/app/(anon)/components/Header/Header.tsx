@@ -10,14 +10,14 @@ import { UserMenu } from "./UserMenu";
 export function Header() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
-  const { user, isLoading, isConfigured, signInWithGoogle, signOut } = useAuth();
+  const { user, isLoading, isConfigured, signOut } = useAuth();
 
   useEffect(() => {
     queueMicrotask(() => setMounted(true));
   }, []);
 
   return (
-    <header className="w-full border-b border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
+    <header className="relative z-[100] w-full border-b border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900">
       <div className="mx-auto flex h-20 w-full items-center justify-between px-4 sm:px-6 lg:px-8">
         <Link href="/" className="text-lg font-bold text-zinc-900 dark:text-white">
           AI 블로그
@@ -35,7 +35,6 @@ export function Header() {
           {mounted && isConfigured && !isLoading && (
             <UserMenu
               user={user}
-              onSignIn={signInWithGoogle}
               onSignOut={signOut}
             />
           )}
