@@ -50,8 +50,8 @@ export function CreatePageDesktop({
 }: CreatePageDesktopProps) {
   return (
     <main className="flex h-full min-h-0 w-full flex-1 flex-row relative">
-      <aside className="w-80 shrink-0 border-r border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900 flex flex-col">
-        <InputSection {...inputSectionProps} />
+      <aside className="flex min-h-0 w-80 shrink-0 flex-col border-r border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900">
+        <InputSection {...inputSectionProps} stickySubmit />
       </aside>
 
       <HistoryToggleButton onClick={onHistoryToggle} isOffline={isOffline} />
@@ -61,7 +61,7 @@ export function CreatePageDesktop({
           <button
             type="button"
             onClick={onHistoryClose}
-            className="absolute inset-0 z-40 bg-black/30"
+            className="absolute inset-0 z-20 bg-black/30"
             aria-label="히스토리 패널 닫기"
           />
         )}

@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
 import { CiLogin } from "react-icons/ci";
@@ -20,13 +21,28 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
   const [isDeleting, setIsDeleting] = useState(false);
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteError, setDeleteError] = useState<string | null>(null);
+  const [dropdownPosition, setDropdownPosition] = useState<{ top: number; right: number } | null>(null);
   const menuRef = useRef<HTMLDivElement>(null);
+  const triggerRef = useRef<HTMLButtonElement>(null);
+  const dropdownRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (isOpen && triggerRef.current) {
+      const rect = triggerRef.current.getBoundingClientRect();
+      setDropdownPosition({
+        top: rect.bottom + 4,
+        right: document.documentElement.clientWidth - rect.right,
+      });
+    } else {
+      setDropdownPosition(null);
+    }
+  }, [isOpen]);
 
   useEffect(() => {
     function handleClickOutside(event: MouseEvent) {
-      if (menuRef.current && !menuRef.current.contains(event.target as Node)) {
-        setIsOpen(false);
-      }
+      const target = event.target as Node;
+      if (menuRef.current?.contains(target) || dropdownRef.current?.contains(target)) return;
+      setIsOpen(false);
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
@@ -56,6 +72,7 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
   return (
     <div className="relative" ref={menuRef}>
       <button
+        ref={triggerRef}
         type="button"
         onClick={() => setIsOpen((prev) => !prev)}
         className="flex items-center gap-2 rounded-md p-2 text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-white"
@@ -80,68 +97,74 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
           </span>
         )}
       </button>
-      {isOpen && (
-        <div
-          className="absolute right-0 top-full z-50 mt-1 min-w-[11rem] max-w-[16rem] rounded-md border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
-          role="menu"
-        >
+      {isOpen &&
+        dropdownPosition &&
+        typeof document !== "undefined" &&
+        createPortal(
           <div
-            className="flex items-center gap-2 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-400"
-            role="presentation"
+            ref={dropdownRef}
+            className="fixed z-40 min-w-[11rem] max-w-[16rem] rounded-md border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+            style={{ top: dropdownPosition.top, right: dropdownPosition.right }}
+            role="menu"
           >
-            <FiUser className="h-4 w-4 shrink-0 text-zinc-400 dark:text-zinc-500" />
-            <span className="min-w-0 truncate" title={user.email ?? undefined}>
-              {user.email ?? (user.user_metadata?.name as string) ?? "계정"}
-            </span>
-          </div>
-          <div className="border-t border-zinc-200 dark:border-zinc-700" />
-          <Link
-            href="/create"
-            onClick={() => setIsOpen(false)}
-            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
-            role="menuitem"
-          >
-            <HiPencil className="h-4 w-4 shrink-0" />
-            글 생성
-          </Link>
-          <Link
-            href="/history"
-            onClick={() => setIsOpen(false)}
-            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
-            role="menuitem"
-          >
-            <MdHistory className="h-4 w-4 shrink-0" />
-            작성 히스토리
-          </Link>
-          <button
-            type="button"
-            onClick={() => {
-              onSignOut();
-              setIsOpen(false);
-            }}
-            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
-            role="menuitem"
-          >
-            <HiLogout className="h-4 w-4 shrink-0" />
-            로그아웃
-          </button>
-          <div className="border-t border-zinc-200 dark:border-zinc-700" />
-          <button
-            type="button"
-            disabled={isDeleting}
-            onClick={() => {
-              setIsOpen(false);
-              setDeleteError(null);
-              setShowDeleteConfirm(true);
-            }}
-            className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30 disabled:opacity-50"
-            role="menuitem"
-          >
-            <HiTrash className="h-4 w-4 shrink-0" />
-            회원탈퇴
-          </button>
-        </div>
-      )}
+            <div
+              className="flex items-center gap-2 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-400"
+              role="presentation"
+            >
+              <FiUser className="h-4 w-4 shrink-0 text-zinc-400 dark:text-zinc-500" />
+              <span className="min-w-0 truncate" title={user.email ?? undefined}>
+                {user.email ?? (user.user_metadata?.name as string) ?? "계정"}
+              </span>
+            </div>
+            <div className="border-t border-zinc-200 dark:border-zinc-700" />
+            <Link
+              href="/create"
+              onClick={() => setIsOpen(false)}
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+              role="menuitem"
+            >
+              <HiPencil className="h-4 w-4 shrink-0" />
+              글 생성
+            </Link>
+            <Link
+              href="/history"
+              onClick={() => setIsOpen(false)}
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+              role="menuitem"
+            >
+              <MdHistory className="h-4 w-4 shrink-0" />
+              작성 히스토리
+            </Link>
+            <button
+              type="button"
+              onClick={() => {
+                onSignOut();
+                setIsOpen(false);
+              }}
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-zinc-700 hover:bg-zinc-100 dark:text-zinc-300 dark:hover:bg-zinc-700"
+              role="menuitem"
+            >
+              <HiLogout className="h-4 w-4 shrink-0" />
+              로그아웃
+            </button>
+            <div className="border-t border-zinc-200 dark:border-zinc-700" />
+            <button
+              type="button"
+              disabled={isDeleting}
+              onClick={() => {
+                setIsOpen(false);
+                setDeleteError(null);
+                setShowDeleteConfirm(true);
+              }}
+              className="flex w-full items-center gap-2 px-3 py-1.5 text-left text-xs text-red-600 hover:bg-red-50 dark:text-red-400 dark:hover:bg-red-950/30 disabled:opacity-50"
+              role="menuitem"
+            >
+              <HiTrash className="h-4 w-4 shrink-0" />
+              회원탈퇴
+            </button>
+          </div>,
+          document.body
+        )}
 
       {showDeleteConfirm && (
         <div

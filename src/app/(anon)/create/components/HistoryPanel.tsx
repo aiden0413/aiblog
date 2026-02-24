@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import type { BlogHistoryItem } from "@/lib/blogHistory";
 import { STYLE_LABELS } from "@/lib/blogHistory";
@@ -55,8 +56,15 @@ export function HistoryPanel({
   deleteError = null,
   onDismissDeleteError,
 }: HistoryPanelProps) {
+  const [mounted, setMounted] = useState(false);
   const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(null);
   const [deleteRequested, setDeleteRequested] = useState(false);
+
+  useEffect(() => {
+    // 포털은 마운트 후에만 렌더해 서버/클라이언트 첫 렌더를 동일하게 유지(하이드레이션 안전)
+    // eslint-disable-next-line -- mounted pattern for hydration-safe portal
+    setMounted(true);
+  }, []);
 
   const closeModal = () => {
     setPendingDeleteIndex(null);
@@ -89,17 +97,20 @@ export function HistoryPanel({
           setDeleteRequested(false);
         }}
       />
-      {/* 우측 슬라이드 패널. 열림·닫힘 시 translateX 전환. 전환 애니메이션 적용 여부는 globals.css의 data-allow-transition 정책을 따름. */}
-      <div
-        data-allow-transition
-        className="fixed right-0 z-50 w-full max-w-[280px] border-l border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 top-[81px] bottom-[4.5rem] min-[900px]:bottom-0"
-        style={{
-          transform: isOpen ? "translateX(0)" : "translateX(100%)",
-          transition: "transform 300ms cubic-bezier(0.32, 0.72, 0, 1)",
-        }}
-        aria-modal="true"
-        aria-label="히스토리"
-      >
+      {/* 우측 슬라이드 패널. z-30으로 헤더(20) 위·유저메뉴(40) 아래. body 포털로 stacking context 통일. */}
+      {mounted &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div
+            data-allow-transition
+            className="fixed right-0 z-30 w-full max-w-[280px] border-l border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 top-[81px] bottom-[4.5rem] min-[900px]:bottom-0"
+            style={{
+              transform: isOpen ? "translateX(0)" : "translateX(100%)",
+              transition: "transform 300ms cubic-bezier(0.32, 0.72, 0, 1)",
+            }}
+            aria-modal="true"
+            aria-label="히스토리"
+          >
         <div className="flex h-full min-h-0 flex-col">
           <div className="flex shrink-0 items-center justify-between border-b border-zinc-200 px-4 py-3 dark:border-zinc-700">
             <h2 className="text-lg font-semibold text-zinc-800 dark:text-zinc-200">
@@ -211,7 +222,9 @@ export function HistoryPanel({
             )}
           </div>
         </div>
-      </div>
+          </div>,
+          document.body
+        )}
     </>
   );
 }

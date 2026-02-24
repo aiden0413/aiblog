@@ -124,6 +124,11 @@ export default function CreatePage() {
     setIsHistoryOpen((prev) => !prev);
   };
 
+  const handleInputPanelOpenChange = (open: boolean) => {
+    setIsInputOpen(open);
+    if (open) setIsHistoryOpen(false);
+  };
+
   const inputSectionProps: InputSectionProps = {
     topic,
     onTopicChange: setTopic,
@@ -168,7 +173,7 @@ export default function CreatePage() {
         <CreatePageMobile
           {...commonProps}
           isInputOpen={isInputOpen}
-          onInputPanelOpenChange={setIsInputOpen}
+          onInputPanelOpenChange={handleInputPanelOpenChange}
           mobileFormId={MOBILE_FORM_ID}
         />
       </div>

@@ -31,6 +31,8 @@ export interface InputSectionProps {
   hideSubmitButton?: boolean;
   /** form 요소의 id. 외부 제출 버튼이 form 속성으로 이 폼을 참조할 때 사용. */
   formId?: string;
+  /** true일 경우 PC처럼 aside 맨 아래에 제출 버튼 고정. 부모가 flex flex-col이어야 함. */
+  stickySubmit?: boolean;
 }
 
 export function InputSection({
@@ -44,15 +46,22 @@ export function InputSection({
   isPending,
   hideSubmitButton = false,
   formId,
+  stickySubmit = false,
 }: InputSectionProps) {
   return (
-    <div className="flex min-w-0 w-full max-w-full flex-col">
+    <div
+      className={`flex min-w-0 w-full max-w-full flex-col ${stickySubmit ? "min-h-0 flex-1" : ""}`}
+    >
       <h1 className="text-xl font-bold text-zinc-900 dark:text-white">블로그 글 생성</h1>
       <p className="mt-2 text-sm text-zinc-600 dark:text-zinc-400 mb-6">
         주제, 키워드, 글 스타일을 입력 후 생성 버튼을 누르세요.
       </p>
-      <form id={formId} onSubmit={onSubmit} className="flex flex-col">
-        <div className="space-y-6">
+      <form
+        id={formId}
+        onSubmit={onSubmit}
+        className={`flex flex-col ${stickySubmit ? "min-h-0 flex-1" : ""}`}
+      >
+        <div className={`space-y-6 ${stickySubmit ? "flex-1 min-h-0 overflow-y-auto" : ""}`}>
           <TextInput
             id="topic"
             label="블로그 주제"
@@ -104,7 +113,13 @@ export function InputSection({
         </div>
 
         {!hideSubmitButton && (
-          <div className="mt-auto pt-6 shrink-0 space-y-4">
+          <div
+            className={
+              stickySubmit
+                ? "shrink-0 border-t border-zinc-200 bg-white pt-4 dark:border-zinc-700 dark:bg-zinc-900"
+                : "mt-auto pt-6 shrink-0 space-y-4"
+            }
+          >
             <Button
               text={isPending ? "생성 중..." : "블로그 글 생성"}
               type="submit"

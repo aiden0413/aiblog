@@ -1,5 +1,7 @@
 "use client";
 
+import { useState, useEffect } from "react";
+import { createPortal } from "react-dom";
 import type { InputSectionProps } from "./components/InputSection";
 import type { GenerateResponseDto } from "@/backend/applications/prompt/dtos/GenerateResponseDto";
 import { InputSection } from "./components/InputSection";
@@ -50,8 +52,15 @@ export function CreatePageMobile({
   onInputPanelOpenChange,
   mobileFormId,
 }: CreatePageMobileProps) {
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => {
+    // eslint-disable-next-line -- 포털은 마운트 후에만 렌더(하이드레이션 안전)
+    setMounted(true);
+  }, []);
+
   return (
-    <main className="flex h-full min-h-0 w-full flex-1 flex-col relative">
+    <>
+      <main className="flex h-full min-h-0 w-full flex-1 flex-col relative">
       {/* 입력 패널: dvh 기준 높이. 푸터(4.5rem) 위에 배치. */}
       <div
         data-allow-transition
@@ -94,7 +103,7 @@ export function CreatePageMobile({
           <button
             type="button"
             onClick={onHistoryClose}
-            className="absolute top-0 left-0 right-0 bottom-[4.5rem] z-40 bg-black/30"
+            className="absolute top-0 left-0 right-0 bottom-[4.5rem] z-20 bg-black/30"
             aria-label="히스토리 패널 닫기"
           />
         )}
@@ -111,18 +120,22 @@ export function CreatePageMobile({
           isOffline={isOffline}
         />
       </div>
-
-      {/* 전체 화면 기준 하단 푸터(InputSection/결과 영역에 종속되지 않음). */}
-      <div className="fixed left-0 right-0 bottom-0 z-50 flex items-center gap-2 p-4 pb-[max(1rem,env(safe-area-inset-bottom))] bg-white dark:bg-zinc-900">
-        <Button
-          text={isPending ? "생성 중..." : "블로그 글 생성"}
-          type="submit"
-          form={mobileFormId}
-          disabled={isPending}
-          className="flex-1 min-w-0"
-        />
-        <HistoryToggleButton onClick={onHistoryToggle} />
-      </div>
     </main>
+      {mounted &&
+        typeof document !== "undefined" &&
+        createPortal(
+          <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-2 border-t border-zinc-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))] dark:border-zinc-700 dark:bg-zinc-900 min-[900px]:hidden">
+            <Button
+              text={isPending ? "생성 중..." : "블로그 글 생성"}
+              type="submit"
+              form={mobileFormId}
+              disabled={isPending}
+              className="flex-1 min-w-0"
+            />
+            <HistoryToggleButton onClick={onHistoryToggle} />
+          </div>,
+          document.body
+        )}
+    </>
   );
 }
