@@ -56,7 +56,7 @@ export default function SignupPage() {
 
   return (
     <main className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-x-hidden overflow-y-auto bg-gradient-to-b from-purple-50 to-white px-6 dark:from-zinc-900 dark:to-zinc-950">
-      <div className="w-full max-w-sm space-y-8 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+      <div className="w-full max-w-sm space-y-8 p-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
             회원가입

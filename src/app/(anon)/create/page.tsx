@@ -15,7 +15,7 @@ import { CreatePageDesktop } from "./CreatePageDesktop";
 const MOBILE_FORM_ID = "create-blog-form-mobile";
 
 export default function CreatePage() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const {
     historyItems,
     refetch: refetchHistory,
@@ -23,7 +23,7 @@ export default function CreatePage() {
     fetchError: historyFetchError,
     deleteError: historyDeleteError,
     clearDeleteError: clearHistoryDeleteError,
-  } = useBlogHistory(user?.id ?? null);
+  } = useBlogHistory(user?.id ?? null, authLoading);
 
   const [topic, setTopic] = useState("");
   const [keywordsInput, setKeywordsInput] = useState("");
@@ -38,7 +38,6 @@ export default function CreatePage() {
   const [selectedHistoryResult, setSelectedHistoryResult] = useState<
     GenerateResponseDto | null
   >(null);
-  const [scrollToTopTrigger, setScrollToTopTrigger] = useState(0);
 
   const {
     mutate,
@@ -103,8 +102,7 @@ export default function CreatePage() {
 
   const handleSelectHistoryItem = (item: BlogHistoryItem) => {
     if (item.result) {
-      setSelectedHistoryResult(item.result);
-      setScrollToTopTrigger((t) => t + 1);
+      setSelectedHistoryResult({ ...item.result });
       setIsHistoryOpen(false);
       setIsInputOpen(false);
     }
@@ -113,7 +111,12 @@ export default function CreatePage() {
   const handleRemoveHistoryItem = (index: number) => {
     const itemToRemove = historyItems[index];
     return removeHistoryItem(index).then(() => {
-      if (selectedHistoryResult && itemToRemove?.result === selectedHistoryResult) {
+      if (
+        selectedHistoryResult &&
+        itemToRemove?.result &&
+        itemToRemove.result.title === selectedHistoryResult.title &&
+        itemToRemove.result.content === selectedHistoryResult.content
+      ) {
         setSelectedHistoryResult(null);
       }
     });
@@ -147,7 +150,6 @@ export default function CreatePage() {
     displayResult,
     errorMessage,
     isPending,
-    scrollToTopTrigger,
     isOffline,
     isHistoryOpen,
     onHistoryClose: () => setIsHistoryOpen(false),

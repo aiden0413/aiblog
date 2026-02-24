@@ -38,7 +38,7 @@ function compareItems(
 }
 
 export default function HistoryPage() {
-  const { user } = useAuth();
+  const { user, isLoading: authLoading } = useAuth();
   const {
     historyItems,
     refetch,
@@ -47,7 +47,7 @@ export default function HistoryPage() {
     fetchError,
     deleteError,
     clearDeleteError,
-  } = useBlogHistory(user?.id ?? null);
+  } = useBlogHistory(user?.id ?? null, authLoading);
 
   const [selectedItem, setSelectedItem] = useState<BlogHistoryItem | null>(null);
   const [pendingDeleteIndex, setPendingDeleteIndex] = useState<number | null>(null);

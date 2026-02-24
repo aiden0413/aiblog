@@ -11,7 +11,6 @@ export interface CreatePageDesktopProps {
   displayResult: GenerateResponseDto | undefined;
   errorMessage: string | null;
   isPending: boolean;
-  scrollToTopTrigger: number;
   isOffline: boolean;
   isHistoryOpen: boolean;
   onHistoryClose: () => void;
@@ -42,7 +41,6 @@ export function CreatePageDesktop({
   displayResult,
   errorMessage,
   isPending,
-  scrollToTopTrigger,
   isOffline,
   isHistoryOpen,
   onHistoryClose,
@@ -51,7 +49,7 @@ export function CreatePageDesktop({
   return (
     <main className="flex h-full min-h-0 w-full flex-1 flex-row relative">
       <aside className="flex min-h-0 w-80 shrink-0 flex-col border-r border-zinc-200 bg-white p-6 dark:border-zinc-700 dark:bg-zinc-900">
-        <InputSection {...inputSectionProps} stickySubmit />
+        <InputSection {...inputSectionProps} submitAtBottom />
       </aside>
 
       <HistoryToggleButton onClick={onHistoryToggle} isOffline={isOffline} />
@@ -74,7 +72,6 @@ export function CreatePageDesktop({
           result={displayResult}
           isPending={isPending}
           errorMessage={errorMessage}
-          scrollToTopTrigger={scrollToTopTrigger}
           isOffline={isOffline}
         />
       </div>

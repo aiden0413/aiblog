@@ -15,8 +15,14 @@ interface AuthContextValue {
 
 const AuthContext = createContext<AuthContextValue | null>(null);
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
-  const [session, setSession] = useState<Session | null>(null);
+interface AuthProviderProps {
+  children: React.ReactNode;
+  /** 서버에서 조회한 세션. 첫 렌더 전에 로그인 여부를 알 수 있게 함 */
+  initialSession?: Session | null;
+}
+
+export function AuthProvider({ children, initialSession = null }: AuthProviderProps) {
+  const [session, setSession] = useState<Session | null>(initialSession ?? null);
   const [isLoading, setIsLoading] = useState(true);
 
   const supabase = createClient();

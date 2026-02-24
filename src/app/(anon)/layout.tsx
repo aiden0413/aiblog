@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import { AuthProvider } from "../../lib/AuthProvider";
 import { QueryProvider } from "../../lib/QueryProvider";
+import { getSupabase } from "@/lib/supabase/server";
 import { ThemeProvider } from "../../lib/ThemeProvider";
 import { AuthPopupCloser } from "../../lib/AuthPopupCloser";
 import { Header } from "./components/Header/Header";
@@ -29,18 +30,23 @@ export const viewport: Viewport = {
   interactiveWidget: "resizes-content",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const supabase = await getSupabase();
+  const { data: { session: initialSession } } = supabase
+    ? await supabase.auth.getSession()
+    : { data: { session: null } };
+
   return (
     <html lang="ko" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         <ThemeProvider>
-          <AuthProvider>
+          <AuthProvider initialSession={initialSession}>
             <QueryProvider>
               <AuthPopupCloser />
               <div className="flex h-full w-full flex-col overflow-hidden">
@@ -49,6 +55,7 @@ export default function RootLayout({
                   {children}
                 </div>
               </div>
+              <div id="modal-root" />
             </QueryProvider>
           </AuthProvider>
         </ThemeProvider>

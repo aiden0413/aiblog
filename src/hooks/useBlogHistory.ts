@@ -1,6 +1,6 @@
 "use client";
 
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useMemo, useState } from "react";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import type { BlogHistoryItem } from "@/lib/blogHistory";
 import { getHistory, removeHistoryItemAtIndex } from "@/lib/blogHistory";
@@ -106,16 +106,26 @@ async function deleteHistory(id: string): Promise<void> {
   }
 }
 
-export function useBlogHistory(userId: string | null) {
+export function useBlogHistory(userId: string | null, authLoading: boolean) {
   const queryClient = useQueryClient();
   const [localItems, setLocalItems] = useState<BlogHistoryItem[]>([]);
+  const [localLoaded, setLocalLoaded] = useState(false);
 
-  // 비로그인: 마운트 후에만 로컬 스토리지 읽기 (서버와 초기 HTML을 맞춰 hydration 에러 방지)
+  // 로그인 상태에서는 로컬 스토리지 미사용. 비로그인 확정 후에만 로컬 스토리지 읽기 (깜빡임 방지)
   useEffect(() => {
-    if (!userId) {
-      queueMicrotask(() => setLocalItems(getHistory()));
+    if (authLoading) {
+      queueMicrotask(() => setLocalLoaded(false));
+      return;
     }
-  }, [userId]);
+    if (!userId) {
+      queueMicrotask(() => {
+        setLocalItems(getHistory());
+        setLocalLoaded(true);
+      });
+    } else {
+      queueMicrotask(() => setLocalLoaded(false));
+    }
+  }, [userId, authLoading]);
 
   const {
     data: apiItems = [],
@@ -138,9 +148,13 @@ export function useBlogHistory(userId: string | null) {
     },
   });
 
-  /** 로그인 시 DB(API) 값, 비로그인 시 로컬 스토리지 값 */
-  const historyItems = userId ? apiItems : localItems;
-  const isLoading = Boolean(userId && isLoadingApi);
+  /** 로그인 시 DB(API) 값, 비로그인 시 로컬 스토리지 값. auth 로딩 중에는 로컬 미사용(빈 배열) */
+  const historyItems = useMemo(
+    () => (authLoading ? [] : userId ? apiItems : localItems),
+    [authLoading, userId, apiItems, localItems]
+  );
+  /** auth 로딩 중이거나, 로그인 시 API 로딩 중, 비로그인 시 로컬 읽기 전까지 → 스켈레톤 */
+  const isLoading = Boolean(authLoading || (userId ? isLoadingApi : !localLoaded));
 
   const fetchError: string | null =
     isFetchError && fetchErrorRaw

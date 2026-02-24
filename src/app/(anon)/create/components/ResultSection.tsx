@@ -32,8 +32,6 @@ export interface ResultSectionProps {
   isPending?: boolean;
   /** API/네트워크 에러 시 사용자에게 보여줄 메시지. 있으면 에러 UI 표시. */
   errorMessage?: string | null;
-  /** 값이 변경될 때마다 결과 영역 스크롤을 상단으로 이동. 동일 항목 재선택 시에도 스크롤 동작 보장. */
-  scrollToTopTrigger?: number;
   /** 오프라인 배너 표시 여부. true면 결과 영역 max-height를 줄여 하단 버튼이 잘리지 않게 함. */
   isOffline?: boolean;
 }
@@ -77,7 +75,6 @@ export function ResultSection({
   result,
   isPending = false,
   errorMessage = null,
-  scrollToTopTrigger = 0,
   isOffline = false,
 }: ResultSectionProps) {
   const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
@@ -85,10 +82,12 @@ export function ResultSection({
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (result) {
+    if (!result) return;
+    const timer = setTimeout(() => {
       scrollContainerRef.current?.scrollTo({ top: 0 });
-    }
-  }, [result, scrollToTopTrigger]);
+    }, 0);
+    return () => clearTimeout(timer);
+  }, [result]);
 
   const handleCopy = async (text: string, label: string) => {
     await copyToClipboard(text);
@@ -160,7 +159,7 @@ ${bodyHtml}
       )}
       <div
         ref={scrollContainerRef}
-        className="p-6 flex-1 min-h-0 overflow-x-hidden overflow-y-auto relative"
+        className="p-6 flex-1 min-h-0 min-w-0 overflow-x-hidden overflow-y-auto relative"
       >
       {isPending ? (
         <ResultSectionSkeleton />

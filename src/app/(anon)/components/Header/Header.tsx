@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { useTheme } from "next-themes";
+import { CiLogin } from "react-icons/ci";
 import { HiOutlineSun, HiOutlineMoon } from "react-icons/hi";
 import { useAuth } from "@/lib/AuthProvider";
 import { UserMenu } from "./UserMenu";
@@ -10,7 +11,7 @@ import { UserMenu } from "./UserMenu";
 export function Header() {
   const [mounted, setMounted] = useState(false);
   const { theme, setTheme } = useTheme();
-  const { user, isLoading, isConfigured, signOut } = useAuth();
+  const { user, isLoading, signOut } = useAuth();
 
   useEffect(() => {
     queueMicrotask(() => setMounted(true));
@@ -24,7 +25,16 @@ export function Header() {
         </Link>
 
         <div className="flex items-center gap-2">
-          {mounted && isConfigured && isLoading && (
+          {!user && (
+            <Link
+              href="/signin"
+              className="flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
+            >
+              <CiLogin className="h-5 w-5" />
+              로그인
+            </Link>
+          )}
+          {user && isLoading && (
             <div
               className="flex shrink-0 items-center justify-center rounded-md p-2"
               aria-hidden
@@ -32,7 +42,7 @@ export function Header() {
               <div className="h-8 w-8 rounded-full bg-zinc-200 animate-pulse dark:bg-zinc-700" />
             </div>
           )}
-          {mounted && isConfigured && !isLoading && (
+          {user && !isLoading && (
             <UserMenu
               user={user}
               onSignOut={signOut}

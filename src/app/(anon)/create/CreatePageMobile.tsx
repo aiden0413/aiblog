@@ -1,7 +1,5 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { createPortal } from "react-dom";
 import type { InputSectionProps } from "./components/InputSection";
 import type { GenerateResponseDto } from "@/backend/applications/prompt/dtos/GenerateResponseDto";
 import { InputSection } from "./components/InputSection";
@@ -15,7 +13,6 @@ export interface CreatePageMobileProps {
   displayResult: GenerateResponseDto | undefined;
   errorMessage: string | null;
   isPending: boolean;
-  scrollToTopTrigger: number;
   isOffline: boolean;
   isHistoryOpen: boolean;
   onHistoryClose: () => void;
@@ -43,7 +40,6 @@ export function CreatePageMobile({
   displayResult,
   errorMessage,
   isPending,
-  scrollToTopTrigger,
   isOffline,
   isHistoryOpen,
   onHistoryClose,
@@ -52,12 +48,6 @@ export function CreatePageMobile({
   onInputPanelOpenChange,
   mobileFormId,
 }: CreatePageMobileProps) {
-  const [mounted, setMounted] = useState(false);
-  useEffect(() => {
-    // eslint-disable-next-line -- 포털은 마운트 후에만 렌더(하이드레이션 안전)
-    setMounted(true);
-  }, []);
-
   return (
     <>
       <main className="flex h-full min-h-0 w-full flex-1 flex-col relative">
@@ -116,26 +106,20 @@ export function CreatePageMobile({
           result={displayResult}
           isPending={isPending}
           errorMessage={errorMessage}
-          scrollToTopTrigger={scrollToTopTrigger}
           isOffline={isOffline}
         />
       </div>
     </main>
-      {mounted &&
-        typeof document !== "undefined" &&
-        createPortal(
-          <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-2 border-t border-zinc-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))] dark:border-zinc-700 dark:bg-zinc-900 min-[900px]:hidden">
-            <Button
-              text={isPending ? "생성 중..." : "블로그 글 생성"}
-              type="submit"
-              form={mobileFormId}
-              disabled={isPending}
-              className="flex-1 min-w-0"
-            />
-            <HistoryToggleButton onClick={onHistoryToggle} />
-          </div>,
-          document.body
-        )}
+      <div className="fixed inset-x-0 bottom-0 z-30 flex items-center gap-2 border-t border-zinc-200 bg-white p-4 pb-[max(1rem,env(safe-area-inset-bottom))] dark:border-zinc-700 dark:bg-zinc-900 min-[900px]:hidden">
+        <Button
+          text={isPending ? "생성 중..." : "블로그 글 생성"}
+          type="submit"
+          form={mobileFormId}
+          disabled={isPending}
+          className="flex-1 min-w-0"
+        />
+        <HistoryToggleButton onClick={onHistoryToggle} />
+      </div>
     </>
   );
 }

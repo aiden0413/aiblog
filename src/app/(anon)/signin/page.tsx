@@ -60,7 +60,7 @@ export default function SignInPage() {
 
   return (
     <main className="flex min-h-0 flex-1 flex-col items-center justify-center overflow-x-hidden overflow-y-auto bg-gradient-to-b from-purple-50 to-white px-6 dark:from-zinc-900 dark:to-zinc-950">
-      <div className="w-full max-w-sm space-y-8 rounded-2xl border border-zinc-200 bg-white p-8 shadow-sm dark:border-zinc-700 dark:bg-zinc-900">
+      <div className="w-full max-w-sm space-y-8 p-8">
         <div className="text-center">
           <h1 className="text-2xl font-bold text-zinc-900 dark:text-white">
             로그인
@@ -141,7 +141,7 @@ export default function SignInPage() {
                 <div className="w-full border-t border-zinc-200 dark:border-zinc-600" />
               </div>
               <div className="relative flex justify-center text-sm">
-                <span className="bg-white px-2 text-zinc-500 dark:bg-zinc-900 dark:text-zinc-400">
+                <span className="bg-purple-50 px-2 text-zinc-500 dark:bg-zinc-950 dark:text-zinc-400">
                   또는
                 </span>
               </div>

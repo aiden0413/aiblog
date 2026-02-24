@@ -13,13 +13,9 @@ export function HistoryDetailSection({
   emptyStateMessage,
 }: HistoryDetailSectionProps) {
   return (
-    <main className="flex min-h-0 flex-1 flex-col bg-zinc-50 dark:bg-zinc-950">
+    <main className="flex min-h-0 min-w-0 flex-1 flex-col bg-zinc-50 dark:bg-zinc-950">
       {selectedItem?.result ? (
-        <ResultSection
-          result={selectedItem.result}
-          isOffline={false}
-          scrollToTopTrigger={selectedItem.createdAt ? 1 : 0}
-        />
+        <ResultSection result={selectedItem.result} isOffline={false} />
       ) : selectedItem ? (
         <div className="flex flex-1 flex-col items-center justify-center p-6 text-center">
           <p className="text-sm text-zinc-500 dark:text-zinc-400">

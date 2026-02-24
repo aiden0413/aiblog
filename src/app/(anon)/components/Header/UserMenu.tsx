@@ -4,7 +4,6 @@ import { useState, useRef, useEffect } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import Link from "next/link";
-import { CiLogin } from "react-icons/ci";
 import { FiUser } from "react-icons/fi";
 import { HiLogout, HiPencil } from "react-icons/hi";
 import { MdHistory } from "react-icons/md";
@@ -12,7 +11,7 @@ import { HiTrash } from "react-icons/hi";
 import type { User } from "@supabase/supabase-js";
 
 interface UserMenuProps {
-  user: User | null;
+  user: User;
   onSignOut: () => void;
 }
 
@@ -57,18 +56,6 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
     return () => window.removeEventListener("keydown", handleEscape);
   }, [showDeleteConfirm, isDeleting]);
 
-  if (!user) {
-    return (
-      <Link
-        href="/signin"
-        className="flex items-center gap-2 rounded-md bg-white px-4 py-2 text-sm font-medium text-zinc-700 hover:bg-zinc-50 dark:bg-zinc-800 dark:text-zinc-300 dark:hover:bg-zinc-700"
-      >
-        <CiLogin className="h-5 w-5" />
-        로그인
-      </Link>
-    );
-  }
-
   return (
     <div className="relative" ref={menuRef}>
       <button
@@ -97,16 +84,18 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
           </span>
         )}
       </button>
-      {isOpen &&
+      {(isOpen &&
         dropdownPosition &&
         typeof document !== "undefined" &&
-        createPortal(
-          <div
-            ref={dropdownRef}
-            className="fixed z-40 min-w-[11rem] max-w-[16rem] rounded-md border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
-            style={{ top: dropdownPosition.top, right: dropdownPosition.right }}
-            role="menu"
-          >
+        (() => {
+          const portalTarget = document.getElementById("modal-root") ?? document.body;
+          return createPortal(
+            <div
+              ref={dropdownRef}
+              className="fixed z-50 min-w-[11rem] max-w-[16rem] rounded-md border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+              style={{ top: dropdownPosition.top, right: dropdownPosition.right }}
+              role="menu"
+            >
             <div
               className="flex items-center gap-2 px-3 py-1.5 text-xs text-zinc-600 dark:text-zinc-400"
               role="presentation"
@@ -163,8 +152,9 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
               회원탈퇴
             </button>
           </div>,
-          document.body
-        )}
+            portalTarget
+          );
+        })()) ?? null}
 
       {showDeleteConfirm && (
         <div
