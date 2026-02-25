@@ -6,6 +6,7 @@ import { getSupabase } from "@/lib/supabase/server";
 import { ThemeProvider } from "../../lib/ThemeProvider";
 import { AuthPopupCloser } from "../../lib/AuthPopupCloser";
 import { Header } from "./components/Header/Header";
+import { ToastProvider } from "./components/commons/Toast";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -48,14 +49,16 @@ export default async function RootLayout({
         <ThemeProvider>
           <AuthProvider initialSession={initialSession}>
             <QueryProvider>
-              <AuthPopupCloser />
-              <div className="flex h-full w-full flex-col overflow-hidden">
+              <ToastProvider>
+                <AuthPopupCloser />
+                <div className="flex h-dvh min-h-0 w-full flex-col overflow-hidden">
                 <Header />
                 <div className="flex min-h-0 w-full flex-1 flex-col overflow-hidden">
                   {children}
                 </div>
               </div>
               <div id="modal-root" />
+              </ToastProvider>
             </QueryProvider>
           </AuthProvider>
         </ThemeProvider>

@@ -52,7 +52,9 @@ export function CreatePageDesktop({
         <InputSection {...inputSectionProps} submitAtBottom />
       </aside>
 
-      <HistoryToggleButton onClick={onHistoryToggle} isOffline={isOffline} />
+      {!isHistoryOpen && (
+        <HistoryToggleButton onClick={onHistoryToggle} isOffline={isOffline} />
+      )}
 
       <div className="relative flex-1 min-w-0 min-h-0 flex flex-col">
         {isHistoryOpen && (

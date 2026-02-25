@@ -5,6 +5,7 @@ import dynamic from "next/dynamic";
 import { marked } from "marked";
 import type { GenerateResponseDto } from "@/backend/applications/prompt/dtos/GenerateResponseDto";
 import { Button } from "../../components/commons/Button";
+import { useToast } from "../../components/commons/Toast";
 
 function sanitizeFileName(name: string): string {
   return name.replace(/[/\\:*?"<>|]/g, "").trim() || "download";
@@ -34,6 +35,8 @@ export interface ResultSectionProps {
   errorMessage?: string | null;
   /** 오프라인 배너 표시 여부. true면 결과 영역 max-height를 줄여 하단 버튼이 잘리지 않게 함. */
   isOffline?: boolean;
+  /** true면 모바일에서 max-height 제한 없이 부모 높이를 꽉 채움 (히스토리 페이지 등). */
+  fillHeightOnMobile?: boolean;
 }
 
 function copyToClipboard(text: string): Promise<void> {
@@ -76,8 +79,9 @@ export function ResultSection({
   isPending = false,
   errorMessage = null,
   isOffline = false,
+  fillHeightOnMobile = false,
 }: ResultSectionProps) {
-  const [copiedLabel, setCopiedLabel] = useState<string | null>(null);
+  const showToast = useToast();
   const [contentReady, setContentReady] = useState(false);
   const scrollContainerRef = useRef<HTMLDivElement>(null);
 
@@ -91,8 +95,7 @@ export function ResultSection({
 
   const handleCopy = async (text: string, label: string) => {
     await copyToClipboard(text);
-    setCopiedLabel(label);
-    setTimeout(() => setCopiedLabel(null), 2000);
+    showToast(`${label} 복사됨`);
   };
 
   const handleMdDownload = (content: string, title: string) => {
@@ -140,7 +143,14 @@ ${bodyHtml}
   }
 
   return (
-    <section className="flex-1 min-w-0 min-h-0 flex flex-col overflow-x-hidden bg-zinc-50 dark:bg-zinc-950 relative min-[900px]:h-full max-h-[calc(100dvh-81px-120px)] min-[900px]:max-h-none">
+    <section
+      className={
+        "flex min-h-0 min-w-0 flex-1 flex-col overflow-x-hidden bg-zinc-50 dark:bg-zinc-950 relative " +
+        (fillHeightOnMobile
+          ? "h-full min-[900px]:h-full"
+          : "min-[900px]:h-full max-h-[calc(100dvh-81px-120px)] min-[900px]:max-h-none")
+      }
+    >
       {isOffline && (
         <div
           className="shrink-0 flex items-center justify-center gap-2 bg-amber-500 text-white px-4 py-2 text-sm font-medium"
@@ -150,11 +160,6 @@ ${bodyHtml}
             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414" />
           </svg>
           <span>인터넷에 연결되어 있지 않습니다. 블로그 생성을 하려면 네트워크를 확인해주세요.</span>
-        </div>
-      )}
-      {copiedLabel !== null && (
-        <div className="fixed top-24 left-1/2 -translate-x-1/2 z-50 rounded-lg border border-zinc-200 bg-white px-4 py-2 text-sm font-medium text-zinc-800 shadow-lg dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-100">
-          {copiedLabel} 복사됨
         </div>
       )}
       <div

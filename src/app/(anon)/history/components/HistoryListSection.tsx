@@ -3,9 +3,19 @@
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { STYLE_LABELS } from "@/lib/blogHistory";
-import { HiOutlineTrash } from "react-icons/hi";
+import { HistoryItemCard } from "../../components/commons/HistoryItemCard";
+import { HiChevronDown, HiChevronUp } from "react-icons/hi";
 import { BsSortDown } from "react-icons/bs";
-import type { HistoryPageProps, HistorySortOption } from "../types";
+import type { HistoryPageProps, HistorySortOption, HistoryStyleFilter } from "../types";
+import type { StyleType } from "@/backend/applications/prompt/dtos/GenerateRequestDto";
+
+const STYLE_FILTER_OPTIONS: { value: HistoryStyleFilter; label: string }[] = [
+  { value: "all", label: "전체" },
+  ...(["tutorial", "til", "troubleshooting"] as const).map((s) => ({
+    value: s as StyleType,
+    label: STYLE_LABELS[s],
+  })),
+];
 
 const SORT_OPTIONS: { value: HistorySortOption; label: string }[] = [
   { value: "dateDesc", label: "최신순" },
@@ -31,6 +41,13 @@ function formatDate(iso: string): string {
 
 export interface HistoryListSectionProps extends HistoryPageProps {
   asideClassName: string;
+  /** aside에 적용할 인라인 스타일 (모바일 전환 높이 등) */
+  asideStyle?: React.CSSProperties;
+  /** 모바일: 접기/펼치기 사용 여부 */
+  collapsible?: boolean;
+  /** collapsible일 때 리스트 펼침 여부 */
+  isListExpanded?: boolean;
+  onListExpandToggle?: () => void;
 }
 
 export function HistoryListSection({
@@ -44,10 +61,16 @@ export function HistoryListSection({
   onSelectItem,
   onRequestDelete,
   asideClassName,
+  asideStyle,
   searchQuery = "",
   onSearchChange,
   sortOption = "dateDesc",
   onSortChange,
+  styleFilter = "all",
+  onStyleFilterChange,
+  collapsible = false,
+  isListExpanded = true,
+  onListExpandToggle,
 }: HistoryListSectionProps) {
   const [sortDropdownOpen, setSortDropdownOpen] = useState(false);
   const sortDropdownRef = useRef<HTMLDivElement>(null);
@@ -62,20 +85,47 @@ export function HistoryListSection({
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  return (
-    <aside className={asideClassName}>
-      <div className="shrink-0 flex items-center justify-between gap-3 border-b border-zinc-300 px-4 py-2.5 dark:border-zinc-600">
-        <span className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-          목록
-        </span>
-        <Link
-          href="/create"
-          className="text-sm font-medium text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
-        >
-          글 생성
-        </Link>
-      </div>
+  const collapsibleBar = collapsible && (
+    <div className="shrink-0 bg-white dark:bg-zinc-900">
+      <button
+        type="button"
+        onClick={onListExpandToggle}
+        className="flex h-12 w-full items-center justify-center border-0 bg-zinc-100 text-zinc-600 outline-none hover:bg-zinc-200 active:bg-zinc-300 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:active:bg-zinc-600"
+        aria-expanded={isListExpanded}
+        aria-label={isListExpanded ? "목록 접기" : "목록 펼치기"}
+      >
+        {isListExpanded ? (
+          <HiChevronUp className="h-6 w-6 shrink-0" />
+        ) : (
+          <HiChevronDown className="h-6 w-6 shrink-0" />
+        )}
+      </button>
+    </div>
+  );
 
+  return (
+    <aside
+      className={asideClassName}
+      style={asideStyle}
+      {...(collapsible ? { "data-allow-transition": true } : {})}
+    >
+      {collapsible && !isListExpanded && <div className="flex-1 min-h-0" aria-hidden />}
+      {(!collapsible || isListExpanded) && (
+        <div className="shrink-0 flex items-center justify-between gap-3 border-b border-zinc-200 px-4 py-2.5 dark:border-zinc-700">
+          <span className="text-xs font-medium uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+            목록
+          </span>
+          <Link
+            href="/create"
+            className="text-sm font-medium text-purple-600 hover:text-purple-700 dark:text-purple-400 dark:hover:text-purple-300"
+          >
+            글 생성
+          </Link>
+        </div>
+      )}
+
+      {(!collapsible || isListExpanded) && (
+        <>
       <div className="shrink-0 flex items-center gap-2 border-b border-zinc-200 px-3 py-2 dark:border-zinc-700">
         <input
           type="text"
@@ -123,6 +173,23 @@ export function HistoryListSection({
             </div>
           )}
         </div>
+      </div>
+
+      <div className="shrink-0 flex flex-wrap gap-1.5 border-b border-zinc-200 px-3 py-2 dark:border-zinc-700">
+        {STYLE_FILTER_OPTIONS.map((opt) => (
+          <button
+            key={opt.value}
+            type="button"
+            onClick={() => onStyleFilterChange?.(opt.value)}
+            className={`rounded-full px-3 py-1.5 text-xs font-medium transition-colors ${
+              styleFilter === opt.value
+                ? "bg-purple-500 text-white dark:bg-purple-600"
+                : "bg-zinc-100 text-zinc-600 hover:bg-zinc-200 dark:bg-zinc-700 dark:text-zinc-300 dark:hover:bg-zinc-600"
+            }`}
+          >
+            {opt.label}
+          </button>
+        ))}
       </div>
 
       {(fetchError ?? deleteError) && (
@@ -173,51 +240,25 @@ export function HistoryListSection({
               const active = isSelected || (selectedItem != null && isSelectedLocal);
               return (
                 <li key={item.id ?? `${item.createdAt}-${index}`}>
-                  <div
-                    role="button"
-                    tabIndex={0}
-                    onClick={() => onSelectItem(item)}
-                    onKeyDown={(e) => {
-                      if (e.key === "Enter" || e.key === " ") {
-                        e.preventDefault();
-                        onSelectItem(item);
-                      }
-                    }}
-                    className={`group relative rounded-lg border p-3 pr-10 ${
-                      active
-                        ? "border-purple-500 bg-purple-50 dark:border-purple-600 dark:bg-purple-950/30"
-                        : "border-zinc-200 bg-zinc-50 hover:border-zinc-300 dark:border-zinc-700 dark:bg-zinc-800 dark:hover:border-zinc-600"
-                    }`}
-                  >
-                    <button
-                      type="button"
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        onRequestDelete(index);
-                      }}
-                      className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-2 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-600 dark:hover:bg-zinc-600 dark:hover:text-zinc-200"
-                      aria-label="항목 삭제"
-                    >
-                      <HiOutlineTrash className="h-4 w-4" />
-                    </button>
-                    <p className="font-medium text-zinc-800 dark:text-zinc-200 line-clamp-1">
-                      {item.topic}
-                    </p>
-                    <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                      {item.keywords.length > 0 ? item.keywords.join(", ") : "-"}
-                    </p>
-                    <div className="mt-1 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
-                      <span>{STYLE_LABELS[item.style]}</span>
-                      <span>{formatDate(item.createdAt)}</span>
-                    </div>
-                  </div>
+                  <HistoryItemCard
+                    item={item}
+                    index={index}
+                    displayDate={formatDate(item.createdAt)}
+                    onSelect={onSelectItem}
+                    onDelete={onRequestDelete}
+                    isActive={active}
+                    clickable
+                  />
                 </li>
               );
             })}
           </ul>
         )}
       </div>
-      <div className="shrink-0 border-t border-zinc-300 dark:border-zinc-600" aria-hidden />
+      <div className="shrink-0" aria-hidden />
+        </>
+      )}
+      {collapsibleBar}
     </aside>
   );
 }

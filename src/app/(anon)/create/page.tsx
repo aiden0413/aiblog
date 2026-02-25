@@ -7,6 +7,7 @@ import { useGenerateBlog } from "@/hooks/useGenerateBlog";
 import { useBlogHistory } from "@/hooks/useBlogHistory";
 import { useAuth } from "@/lib/AuthProvider";
 import { addHistoryItem, type BlogHistoryItem } from "@/lib/blogHistory";
+import { useToast } from "../components/commons/Toast";
 import type { InputSectionProps } from "./components/InputSection";
 import { HistoryPanel } from "./components/HistoryPanel";
 import { CreatePageMobile } from "./CreatePageMobile";
@@ -61,6 +62,8 @@ export default function CreatePage() {
     };
   }, []);
 
+  const showToast = useToast();
+
   const handleSubmit = (e: FormEvent<HTMLFormElement>) => {
     e.preventDefault();
 
@@ -68,6 +71,15 @@ export default function CreatePage() {
       .split(",")
       .map((k) => k.trim())
       .filter(Boolean);
+
+    if (!topic.trim()) {
+      showToast("주제를 입력해 주세요.");
+      return;
+    }
+    if (keywords.length === 0) {
+      showToast("키워드를 입력해 주세요.");
+      return;
+    }
 
     setSelectedHistoryResult(null);
     resetGenerateError();
@@ -141,6 +153,7 @@ export default function CreatePage() {
     onStyleChange: setStyle,
     onSubmit: handleSubmit,
     isPending,
+    noValidate: true,
   };
 
   const errorMessage = generateError ?? null;

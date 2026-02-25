@@ -33,6 +33,8 @@ export interface InputSectionProps {
   formId?: string;
   /** true일 경우 PC처럼 aside 맨 아래에 제출 버튼 두기. 콘텐츠만 스크롤. 부모가 flex flex-col이어야 함. */
   submitAtBottom?: boolean;
+  /** true면 브라우저 기본 유효성 검사 비활성화(커스텀 검사·토스트 사용 시) */
+  noValidate?: boolean;
 }
 
 export function InputSection({
@@ -47,6 +49,7 @@ export function InputSection({
   hideSubmitButton = false,
   formId,
   submitAtBottom = false,
+  noValidate = false,
 }: InputSectionProps) {
   return (
     <div
@@ -59,6 +62,7 @@ export function InputSection({
       <form
         id={formId}
         onSubmit={onSubmit}
+        noValidate={noValidate}
         className={`flex flex-col ${submitAtBottom ? "min-h-0 flex-1" : ""}`}
       >
         <div className={`space-y-6 ${submitAtBottom ? "flex-1 min-h-0 overflow-y-auto" : ""}`}>

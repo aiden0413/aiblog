@@ -3,9 +3,8 @@
 import { useState } from "react";
 import Link from "next/link";
 import type { BlogHistoryItem } from "@/lib/blogHistory";
-import { STYLE_LABELS } from "@/lib/blogHistory";
-import { HiOutlineTrash } from "react-icons/hi";
 import { ConfirmModal } from "../../components/commons/ConfirmModal";
+import { HistoryItemCard } from "../../components/commons/HistoryItemCard";
 
 interface HistoryPanelProps {
   /** 패널 표시 여부. */
@@ -92,7 +91,7 @@ export function HistoryPanel({
       {/* 우측 슬라이드 패널. 인라인 렌더(첫 페인트에 포함) */}
       <div
         data-allow-transition
-        className="fixed right-0 z-30 w-full max-w-[280px] border-l border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 top-[81px] bottom-[4.5rem] min-[900px]:bottom-0"
+        className="fixed right-0 z-40 w-full max-w-[280px] border-l border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 top-[81px] bottom-[4.5rem] min-[900px]:bottom-0"
         style={{
           transform: isOpen ? "translateX(0)" : "translateX(100%)",
           transition: "transform 300ms cubic-bezier(0.32, 0.72, 0, 1)",
@@ -163,50 +162,18 @@ export function HistoryPanel({
               </div>
             ) : (
               <ul className="space-y-3">
-                {items.map((item, index) => {
-                  const hasResult = Boolean(item.result);
-                  return (
-                    <li
-                      key={item.id ?? `${item.createdAt}-${index}`}
-                      role={hasResult ? "button" : undefined}
-                      tabIndex={hasResult ? 0 : undefined}
-                      onClick={() => hasResult && onSelectItem?.(item)}
-                      onKeyDown={(e) => {
-                        if (hasResult && onSelectItem && (e.key === "Enter" || e.key === " ")) {
-                          e.preventDefault();
-                          onSelectItem(item);
-                        }
-                      }}
-                      className={`relative rounded-lg border border-zinc-200 bg-zinc-50 p-3 pr-10 dark:border-zinc-700 dark:bg-zinc-800 ${
-                        hasResult
-                          ? "cursor-pointer hover:bg-zinc-100 dark:hover:bg-zinc-700"
-                          : "opacity-75"
-                      }`}
-                    >
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          setPendingDeleteIndex(index);
-                        }}
-                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-2 text-zinc-400 hover:bg-zinc-200 hover:text-zinc-600 dark:hover:bg-zinc-600 dark:hover:text-zinc-200"
-                        aria-label="항목 삭제"
-                      >
-                        <HiOutlineTrash className="h-4 w-4" />
-                      </button>
-                      <p className="font-medium text-zinc-800 dark:text-zinc-200 line-clamp-1">
-                        {item.topic}
-                      </p>
-                      <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
-                        {item.keywords.length > 0 ? item.keywords.join(", ") : "-"}
-                      </p>
-                      <div className="mt-1 flex items-center justify-between text-xs text-zinc-500 dark:text-zinc-400">
-                        <span>{STYLE_LABELS[item.style]}</span>
-                        <span>{formatDate(item.createdAt)}</span>
-                      </div>
-                    </li>
-                  );
-                })}
+                {items.map((item, index) => (
+                  <li key={item.id ?? `${item.createdAt}-${index}`}>
+                    <HistoryItemCard
+                      item={item}
+                      index={index}
+                      displayDate={formatDate(item.createdAt)}
+                      onSelect={onSelectItem}
+                      onDelete={setPendingDeleteIndex}
+                      clickable={Boolean(item.result)}
+                    />
+                  </li>
+                ))}
               </ul>
             )}
           </div>

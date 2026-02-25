@@ -92,8 +92,9 @@ npm start
 - **접속**: 개발 서버 실행 후 [http://localhost:3000](http://localhost:3000) 에 접속합니다.
 - **글 생성**: 랜딩에서 "글 생성하러 가기" → 주제·키워드(쉼표 구분)·글 스타일 선택 → 생성 버튼 클릭.
 - **결과**: 제목, SEO 메타, 해시태그, 본문(마크다운)이 나오며, 복사·MD/HTML 다운로드가 가능합니다.
-- **히스토리**: 우측(또는 하단) 히스토리 버튼으로 이전 생성 결과를 보고, 항목 클릭 시 다시 불러오거나 삭제할 수 있습니다.
-- **로그인**: Supabase를 설정한 경우 헤더에서 로그인하면 히스토리가 서버에 저장됩니다.
+- **히스토리**: 글 생성 화면에서 우측(또는 하단) 히스토리 버튼으로 이전 결과를 보고, 항목 클릭 시 다시 불러오거나 삭제할 수 있습니다. **히스토리** 메뉴(/history)에서 목록·상세를 한 화면에서 볼 수도 있습니다.
+- **로그인/회원가입**: Supabase를 설정한 경우 헤더에서 로그인·회원가입(/signin, /signup)이 가능하며, 로그인 시 히스토리가 서버에 저장됩니다.
+- **회원 탈퇴**: 로그인 후 사용자 메뉴에서 계정 삭제를 요청할 수 있습니다.
 
 ---
 
@@ -104,14 +105,23 @@ src/
 ├── app/
 │   ├── (anon)/                    # 비인증 라우트
 │   │   ├── create/                # 블로그 글 생성 페이지
-│   │   │   ├── components/        # InputSection, ResultSection, HistoryPanel
+│   │   │   ├── components/        # InputSection, ResultSection, HistoryPanel, ChipInput
+│   │   │   ├── CreatePageDesktop.tsx, CreatePageMobile.tsx
 │   │   │   └── page.tsx
-│   │   ├── components/            # 공통 UI (Button, TextInput, MarkdownEditor 등)
-│   │   │   └── Header/            # Header, UserMenu, LoginModal
+│   │   ├── history/               # 히스토리 목록·상세 페이지
+│   │   │   ├── components/        # HistoryListSection, HistoryDetailSection
+│   │   │   ├── HistoryPageDesktop.tsx, HistoryPageMobile.tsx
+│   │   │   ├── page.tsx, types.ts
+│   │   │   └── ...
+│   │   ├── signin/, signup/       # 로그인·회원가입 페이지
+│   │   ├── components/
+│   │   │   ├── commons/           # Button, TextInput, MarkdownEditor, Toast, HistoryItemCard, ConfirmModal
+│   │   │   └── Header/            # Header, UserMenu
 │   │   ├── layout.tsx
 │   │   └── page.tsx               # 랜딩
 │   └── api/
-│       ├── auth/callback/         # Supabase Auth 콜백
+│       ├── auth/callback/        # Supabase Auth 콜백
+│       ├── auth/delete-account/  # POST 회원 탈퇴 (로그인 필요)
 │       ├── generate/              # POST /api/generate (글 생성)
 │       └── history/               # GET /api/history, DELETE /api/history/[id]
 ├── backend/
@@ -119,9 +129,9 @@ src/
 │   │   ├── history/               # GetBlogHistoryUsecase, DeleteBlogHistoryUsecase, DTO
 │   │   └── prompt/                # CreatePromptUsecase, GenerateRequestDto/ResponseDto
 │   ├── domain/                    # 엔티티, 리포지토리 인터페이스
-│   └── infrastructure/            # OpenAIRepository, SupabaseBlogHistoryRepository
+│   └── infrastructure/            # OpenAIRepository, SupabaseBlogHistoryRepository, BlogHistoryMapper
 ├── hooks/                         # useGenerateBlog, useBlogHistory
-├── lib/                           # blogHistory(로컬), supabase, AuthProvider, ThemeProvider, QueryProvider
+├── lib/                           # blogHistory(로컬), supabase, AuthProvider, ThemeProvider, QueryProvider, ToastProvider, AuthPopupCloser
 └── types/
 ```
 
@@ -129,12 +139,13 @@ src/
 
 ## API
 
-- `POST /api/generate` — 글 생성 요청 (JSON)
-  - body: `{ topic: string, keywords: string[], style: string }`
-  - return: 블로그 마크다운 내용 (제목, SEO 메타, 해시태그, 본문)
-- `GET /api/history` — 히스토리 목록 (로그인 필요)
-- `DELETE /api/history/[id]` — 히스토리 항목 삭제 (로그인 필요)
-- `GET /api/auth/callback` — Supabase 로그인 콜백
+| 메서드 | 경로 | 설명 |
+|--------|------|------|
+| POST | `/api/generate` | 글 생성. body: `topic`, `keywords[]`, `style`(tutorial/til/troubleshooting) → 블로그 마크다운(제목, SEO 메타, 해시태그, 본문) 반환 |
+| GET | `/api/history` | 히스토리 목록 (로그인 필요) |
+| DELETE | `/api/history/[id]` | 히스토리 항목 삭제 (로그인 필요) |
+| GET | `/api/auth/callback` | Supabase 로그인 콜백 |
+| POST | `/api/auth/delete-account` | 회원 탈퇴 (로그인 필요) |
 
 ※ 내부 API라 외부 사용 목적은 아님.
 

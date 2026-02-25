@@ -4,7 +4,7 @@ import { useState, useMemo, useCallback } from "react";
 import { useAuth } from "@/lib/AuthProvider";
 import { useBlogHistory } from "@/hooks/useBlogHistory";
 import type { BlogHistoryItem } from "@/lib/blogHistory";
-import type { HistorySortOption } from "./types";
+import type { HistorySortOption, HistoryStyleFilter } from "./types";
 import { HistoryPageDesktop } from "./HistoryPageDesktop";
 import { HistoryPageMobile } from "./HistoryPageMobile";
 
@@ -16,6 +16,11 @@ function filterBySearch(items: BlogHistoryItem[], query: string): BlogHistoryIte
       item.topic.toLowerCase().includes(q) ||
       item.keywords.some((k) => k.toLowerCase().includes(q))
   );
+}
+
+function filterByStyle(items: BlogHistoryItem[], styleFilter: HistoryStyleFilter): BlogHistoryItem[] {
+  if (styleFilter === "all") return items;
+  return items.filter((item) => item.style === styleFilter);
 }
 
 function compareItems(
@@ -54,17 +59,25 @@ export default function HistoryPage() {
   const [deleteRequested, setDeleteRequested] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [sortOption, setSortOption] = useState<HistorySortOption>("dateDesc");
+  const [styleFilter, setStyleFilter] = useState<HistoryStyleFilter>("all");
+  const [isMobileListExpanded, setMobileListExpanded] = useState(true);
 
   const { displayItems, displayOriginalIndices } = useMemo(() => {
-    const withIndex = historyItems
-      .map((item, origIdx) => ({ item, origIdx }))
+    const byStyle = filterByStyle(historyItems, styleFilter);
+    const withIndex = byStyle
+      .map((item) => {
+        const origIdx = historyItems.findIndex(
+          (h) => (h.id != null && h.id === item.id) || (h.createdAt === item.createdAt && h.topic === item.topic)
+        );
+        return { item, origIdx: origIdx >= 0 ? origIdx : 0 };
+      })
       .filter(({ item }) => filterBySearch([item], searchQuery).length > 0);
     withIndex.sort((a, b) => compareItems(a.item, b.item, sortOption));
     return {
       displayItems: withIndex.map((x) => x.item),
       displayOriginalIndices: withIndex.map((x) => x.origIdx),
     };
-  }, [historyItems, searchQuery, sortOption]);
+  }, [historyItems, searchQuery, sortOption, styleFilter]);
 
   const handleRequestDelete = useCallback(
     (listIndex: number) => {
@@ -88,6 +101,11 @@ export default function HistoryPage() {
     });
   };
 
+  const handleSelectItem = useCallback((item: BlogHistoryItem | null) => {
+    setSelectedItem(item);
+    setMobileListExpanded(false); // 모바일: 선택 시 리스트 패널 닫기
+  }, []);
+
   const commonProps = {
     historyItems: displayItems,
     isLoading,
@@ -96,7 +114,7 @@ export default function HistoryPage() {
     refetch,
     clearDeleteError,
     selectedItem,
-    onSelectItem: setSelectedItem,
+    onSelectItem: handleSelectItem,
     pendingDeleteIndex,
     onRequestDelete: handleRequestDelete,
     deleteRequested,
@@ -109,6 +127,10 @@ export default function HistoryPage() {
     onSearchChange: setSearchQuery,
     sortOption,
     onSortChange: setSortOption,
+    styleFilter,
+    onStyleFilterChange: setStyleFilter,
+    isMobileListExpanded,
+    onMobileListExpandToggle: () => setMobileListExpanded((prev) => !prev),
   };
 
   return (
