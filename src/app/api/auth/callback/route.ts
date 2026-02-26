@@ -12,7 +12,6 @@ export async function GET(request: Request) {
   }
 
   if (code) {
-    await supabase.auth.exchangeCodeForSession(code);
     const confirmed = requestUrl.searchParams.get("confirmed");
     const nextPath = requestUrl.searchParams.get("next") ?? "/create";
     const type = requestUrl.searchParams.get("type");
@@ -22,8 +21,16 @@ export async function GET(request: Request) {
       type === "signup" ||
       type === "email";
     if (isEmailConfirmation) {
-      return NextResponse.redirect(`${requestUrl.origin}/signup/complete`);
+      const res = NextResponse.redirect(`${requestUrl.origin}/signup/complete`);
+      res.cookies.set("signup_verified", "1", {
+        path: "/",
+        maxAge: 120,
+        httpOnly: true,
+        sameSite: "lax",
+      });
+      return res;
     }
+    await supabase.auth.exchangeCodeForSession(code);
     return NextResponse.redirect(`${requestUrl.origin}${nextPath}?auth=complete`);
   }
 
