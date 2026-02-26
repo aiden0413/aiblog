@@ -35,46 +35,38 @@ AI로 글 구조와 초안을 만들어 주는 도구가 있으면, 실제로 �
 ## 주요 화면 (Screenshots)
 
 - **랜딩 페이지**
-  - 서비스 소개 + "글 생성하러 가기" 버튼이 보이는 화면
   - <img width="958" height="910" alt="캡처_2026_02_26_17_01_47_825" src="https://github.com/user-attachments/assets/9357b6a6-b804-4d15-93ef-d3b8c90e8703" />
 
 
 - **블로그 글 생성 페이지 (데스크톱)**
-  - 주제/키워드/스타일 입력과 결과(제목·SEO·해시태그·본문)가 함께 보이는 화면
   - <img width="958" height="910" alt="캡처_2026_02_26_17_03_14_284" src="https://github.com/user-attachments/assets/7b56fdde-4b78-4a70-bb08-d0328024c1d8" />
 
 
 - **블로그 글 생성 페이지 (모바일)**
-  - 모바일 레이아웃에서 입력/결과가 어떻게 보이는지 확인 가능한 화면
   - <img width="377" height="815" alt="캡처_2026_02_26_17_03_41_34" src="https://github.com/user-attachments/assets/323f4c99-4033-48f6-9601-1eee2ecf2128" />
   - <img width="377" height="815" alt="캡처_2026_02_26_17_03_43_193" src="https://github.com/user-attachments/assets/b0b6c108-24b0-491f-9d96-326d2301e9a2" />
 
 
 
 - **히스토리 패널 (생성 화면 우측/하단)**
-  - 생성 화면에서 히스토리 리스트와 항목 선택 시 재로딩 되는 모습
   - <img width="958" height="910" alt="캡처_2026_02_26_17_03_19_854" src="https://github.com/user-attachments/assets/ea09b4a0-9913-4915-8d3b-9a452a3c4b42" />
 
 
 - **히스토리 페이지 (`/history`)**
-  - 목록과 상세가 한 화면에 보이는 레이아웃
   - <img width="958" height="910" alt="캡처_2026_02_26_17_04_31_604" src="https://github.com/user-attachments/assets/e20acd34-5d7f-4874-a1e7-dc5e04740302" />
 
 
 - **로그인 / 회원가입 (`/signin`, `/signup`, `/signup/complete`)**
-  - Supabase Auth 로그인·회원가입(비밀번호 확인), 이메일 인증 후 가입 완료 페이지
   - <img width="958" height="910" alt="캡처_2026_02_26_17_02_11_932" src="https://github.com/user-attachments/assets/96370da9-ec25-415a-860a-58c21907d6df" />
 
   - <img width="958" height="910" alt="캡처_2026_02_26_17_02_15_84" src="https://github.com/user-attachments/assets/1d9e89a6-b8ee-41ba-81ef-eb2db4457efa" />
 
 
 - **사용자 메뉴 + 회원 탈퇴 흐름**
-  - 우측 상단 유저 메뉴 및 계정 삭제
   - <img width="239" height="209" alt="캡처_2026_02_26_17_04_10_575" src="https://github.com/user-attachments/assets/e88c6395-577b-453b-8e5e-4bdff4135335" />
 
 
 - **다크 모드 / 라이트 모드 비교**
-  - 같은 화면을 두 가지 테마로 비교
   - <img width="958" height="910" alt="캡처_2026_02_26_17_04_49_71" src="https://github.com/user-attachments/assets/64a25de6-1abd-4c08-97d0-9ae952a61c1c" />
 
   - <img width="958" height="910" alt="캡처_2026_02_26_17_04_51_786" src="https://github.com/user-attachments/assets/88ab3852-8cc8-4c92-a7a6-cf0ef8798204" />
