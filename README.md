@@ -2,7 +2,9 @@
 
 주제와 키워드만 입력하면 OpenAI로 블로그 글(마크다운)을 자동 생성하는 웹 앱입니다.
 
+**🔗 배포 URL:** [https://aiblog-chi.vercel.app/](https://aiblog-chi.vercel.app/)  
 
+---
 
 ## 소개 (Introduction)
 
@@ -25,9 +27,49 @@ AI로 글 구조와 초안을 만들어 주는 도구가 있으면, 실제로 �
 
 ## 데모 (Demo)
 
-🔗 **Demo:** [https://aiblog-chi.vercel.app/](https://aiblog-chi.vercel.app/)
+위 **배포 URL**에서 바로 사용해 볼 수 있습니다.
 
-(스크린샷, GIF추가 예정)
+---
+
+## 주요 화면 (Screenshots)
+
+> 실제 이미지 파일 경로와 파일 이름은 `docs/screenshots/*` 기준으로 예시입니다.  
+> 스크린샷 파일만 동일한 이름으로 추가해 주시면 됩니다.
+
+- **랜딩 페이지**
+  - 서비스 소개 + "글 생성하러 가기" 버튼이 보이는 화면
+  - `![랜딩 페이지](docs/screenshots/landing.png)`
+
+- **블로그 글 생성 페이지 (데스크톱)**
+  - 주제/키워드/스타일 입력과 결과(제목·SEO·해시태그·본문)가 함께 보이는 화면
+  - `![글 생성 페이지 데스크톱](docs/screenshots/create-desktop.png)`
+
+- **블로그 글 생성 페이지 (모바일)**
+  - 모바일 레이아웃에서 입력/결과가 어떻게 보이는지 확인 가능한 화면
+  - `![글 생성 페이지 모바일](docs/screenshots/create-mobile.png)`
+
+- **히스토리 패널 (생성 화면 우측/하단)**
+  - 생성 화면에서 히스토리 리스트와 항목 선택 시 재로딩 되는 모습
+  - `![히스토리 패널](docs/screenshots/history-panel.png)`
+
+- **히스토리 페이지 (`/history`)**
+  - 목록과 상세가 한 화면에 보이는 레이아웃
+  - `![히스토리 페이지](docs/screenshots/history-page.png)`
+
+- **로그인 / 회원가입 (`/signin`, `/signup`)**
+  - Supabase Auth 기반 로그인/회원가입 폼
+  - `![로그인 페이지](docs/screenshots/signin.png)`
+  - `![회원가입 페이지](docs/screenshots/signup.png)`
+
+- **사용자 메뉴 + 회원 탈퇴 흐름**
+  - 우측 상단 유저 메뉴 및 계정 삭제 Confirm 모달
+  - `![사용자 메뉴](docs/screenshots/user-menu.png)`
+  - `![회원 탈퇴 모달](docs/screenshots/delete-account-modal.png)`
+
+- **다크 모드 / 라이트 모드 비교**
+  - 같은 화면을 두 가지 테마로 비교
+  - `![다크 모드](docs/screenshots/dark-mode.png)`
+  - `![라이트 모드](docs/screenshots/light-mode.png)`
 
 ---
 
@@ -43,53 +85,10 @@ AI로 글 구조와 초안을 만들어 주는 도구가 있으면, 실제로 �
 
 ---
 
-## 설치 및 실행 (Getting Started)
-
-**요구 사항**
-
-- Node.js 18+
-- [OpenAI API Key](https://platform.openai.com/api-keys)
-- (선택) [Supabase](https://supabase.com) 프로젝트 — 로그인·서버 히스토리 사용 시
-
-**1. 저장소 클론 및 의존성 설치**
-
-```bash
-git clone https://github.com/aiden0413/aiblog.git
-cd aiblog
-npm install
-```
-
-**2. 환경 변수 설정**
-
-프로젝트 루트에 `.env.local` 파일을 만들고 아래를 설정하세요.
-
-```env
-# 필수: 글 생성용
-OPENAI_API_KEY=your_openai_api_key_here
-
-# 선택: 로그인·히스토리 저장용 (없으면 비로그인 + 로컬 스토리지만 사용)
-NEXT_PUBLIC_SUPABASE_URL=https://your-project.supabase.co
-NEXT_PUBLIC_SUPABASE_ANON_KEY=your_supabase_anon_key
-```
-
-**3. 개발 서버 실행**
-
-```bash
-npm run dev
-```
-
-**4. 빌드 후 실행 (선택)**
-
-```bash
-npm run build
-npm start
-```
-
----
 
 ## 사용 방법 (Usage)
 
-- **접속**: 개발 서버 실행 후 [http://localhost:3000](http://localhost:3000) 에 접속합니다.
+- **접속**: 위 **배포 URL**에 접속합니다.
 - **글 생성**: 랜딩에서 "글 생성하러 가기" → 주제·키워드(쉼표 구분)·글 스타일 선택 → 생성 버튼 클릭.
 - **결과**: 제목, SEO 메타, 해시태그, 본문(마크다운)이 나오며, 복사·MD/HTML 다운로드가 가능합니다.
 - **히스토리**: 글 생성 화면에서 우측(또는 하단) 히스토리 버튼으로 이전 결과를 보고, 항목 클릭 시 다시 불러오거나 삭제할 수 있습니다. **히스토리** 메뉴(/history)에서 목록·상세를 한 화면에서 볼 수도 있습니다.
