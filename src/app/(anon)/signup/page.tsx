@@ -12,7 +12,9 @@ export default function SignupPage() {
   const { user, isLoading: authLoading } = useAuth();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [passwordConfirm, setPasswordConfirm] = useState("");
   const [error, setError] = useState<string | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
@@ -25,6 +27,11 @@ export default function SignupPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     setError(null);
+    setSuccessMessage(null);
+    if (password !== passwordConfirm) {
+      setError("비밀번호가 일치하지 않습니다.");
+      return;
+    }
     setIsLoading(true);
 
     const supabase = getSupabase();
@@ -34,9 +41,13 @@ export default function SignupPage() {
       return;
     }
 
+    const origin = typeof window !== "undefined" ? window.location.origin : "";
     const { error: signUpError } = await supabase.auth.signUp({
       email: email.trim(),
       password,
+      options: {
+        emailRedirectTo: `${origin}/api/auth/callback?next=/signin&confirmed=1`,
+      },
     });
 
     setIsLoading(false);
@@ -46,8 +57,13 @@ export default function SignupPage() {
       return;
     }
 
-    router.push("/signin");
-    router.refresh();
+    setSuccessMessage(
+      "가입 신청이 완료되었습니다. 이메일에서 인증 링크를 확인해 주세요. 인증 후 로그인할 수 있습니다."
+    );
+    setTimeout(() => {
+      router.push("/signin");
+      router.refresh();
+    }, 3000);
   };
 
   if (authLoading || user) {
@@ -69,6 +85,14 @@ export default function SignupPage() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-5">
+          {successMessage && (
+            <div
+              role="status"
+              className="rounded-lg border border-green-200 bg-green-50 px-3 py-2 text-sm text-green-800 dark:border-green-800 dark:bg-green-950/40 dark:text-green-200"
+            >
+              {successMessage}
+            </div>
+          )}
           {error && (
             <div
               role="alert"
@@ -118,6 +142,31 @@ export default function SignupPage() {
             <p className="mt-1 text-xs text-zinc-500 dark:text-zinc-400">
               최소 6자 이상
             </p>
+          </div>
+
+          <div>
+            <label
+              htmlFor="signup-password-confirm"
+              className="block text-sm font-medium text-zinc-700 dark:text-zinc-300"
+            >
+              비밀번호 확인
+            </label>
+            <input
+              id="signup-password-confirm"
+              type="password"
+              value={passwordConfirm}
+              onChange={(e) => setPasswordConfirm(e.target.value)}
+              required
+              autoComplete="new-password"
+              placeholder="••••••••"
+              minLength={6}
+              className="mt-1 block w-full rounded-lg border border-zinc-300 bg-white px-3 py-2 text-zinc-900 shadow-sm placeholder:text-zinc-400 focus:border-purple-500 focus:outline-none focus:ring-1 focus:ring-purple-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-white dark:placeholder:text-zinc-500"
+            />
+            {passwordConfirm && password !== passwordConfirm && (
+              <p className="mt-1 text-xs text-red-600 dark:text-red-400">
+                비밀번호가 일치하지 않습니다.
+              </p>
+            )}
           </div>
 
           <button

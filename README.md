@@ -20,7 +20,8 @@ AI로 글 구조와 초안을 만들어 주는 도구가 있으면, 실제로 �
 - **튜토리얼 / TIL / 트러블슈팅** 형식 지원
 - 생성 결과 **복사**, **MD/HTML 파일 다운로드**
 - **히스토리**: 로그인 시 Supabase 저장·조회·삭제, 비로그인 시 로컬 스토리지
-- **로그인/로그아웃** (Supabase Auth)
+- **로그인/로그아웃** (Supabase Auth, Google OAuth)
+- **회원가입**: 이메일 인증 + 가입 완료 페이지(`/signup/complete`) 후 로그인
 - **다크 모드**, **반응형** UI
 
 ---
@@ -60,8 +61,8 @@ AI로 글 구조와 초안을 만들어 주는 도구가 있으면, 실제로 �
   - <img width="958" height="910" alt="캡처_2026_02_26_17_04_31_604" src="https://github.com/user-attachments/assets/e20acd34-5d7f-4874-a1e7-dc5e04740302" />
 
 
-- **로그인 / 회원가입 (`/signin`, `/signup`)**
-  - Supabase Auth 기반 로그인/회원가입 폼
+- **로그인 / 회원가입 (`/signin`, `/signup`, `/signup/complete`)**
+  - Supabase Auth 로그인·회원가입(비밀번호 확인), 이메일 인증 후 가입 완료 페이지
   - <img width="958" height="910" alt="캡처_2026_02_26_17_02_11_932" src="https://github.com/user-attachments/assets/96370da9-ec25-415a-860a-58c21907d6df" />
 
   - <img width="958" height="910" alt="캡처_2026_02_26_17_02_15_84" src="https://github.com/user-attachments/assets/1d9e89a6-b8ee-41ba-81ef-eb2db4457efa" />
@@ -100,8 +101,8 @@ AI로 글 구조와 초안을 만들어 주는 도구가 있으면, 실제로 �
 - **글 생성**: 랜딩에서 "글 생성하러 가기" → 주제·키워드(쉼표 구분)·글 스타일 선택 → 생성 버튼 클릭.
 - **결과**: 제목, SEO 메타, 해시태그, 본문(마크다운)이 나오며, 복사·MD/HTML 다운로드가 가능합니다.
 - **히스토리**: 글 생성 화면에서 우측(또는 하단) 히스토리 버튼으로 이전 결과를 보고, 항목 클릭 시 다시 불러오거나 삭제할 수 있습니다. **히스토리** 메뉴(/history)에서 목록·상세를 한 화면에서 볼 수도 있습니다.
-- **로그인/회원가입**: Supabase를 설정한 경우 헤더에서 로그인·회원가입(/signin, /signup)이 가능하며, 로그인 시 히스토리가 서버에 저장됩니다.
-- **회원 탈퇴**: 로그인 후 사용자 메뉴에서 계정 삭제를 요청할 수 있습니다.
+- **로그인/회원가입**: 헤더에서 로그인·회원가입(/signin, /signup). 회원가입은 이메일 인증 후 `/signup/complete`에서 완료 → 로그인.
+- **회원 탈퇴**: 로그인 후 사용자 메뉴에서 계정 삭제 가능.
 
 ---
 
@@ -120,7 +121,9 @@ src/
 │   │   │   ├── HistoryPageDesktop.tsx, HistoryPageMobile.tsx
 │   │   │   ├── page.tsx, types.ts
 │   │   │   └── ...
-│   │   ├── signin/, signup/       # 로그인·회원가입 페이지
+│   │   ├── signin/                 # 로그인
+│   │   ├── signup/                 # 회원가입
+│   │   │   └── complete/           # 가입 완료 페이지
 │   │   ├── components/
 │   │   │   ├── commons/           # Button, TextInput, MarkdownEditor, Toast, HistoryItemCard, ConfirmModal
 │   │   │   └── Header/            # Header, UserMenu
@@ -151,5 +154,5 @@ src/
 | POST | `/api/generate` | 글 생성. body: `topic`, `keywords[]`, `style`(tutorial/til/troubleshooting) → 블로그 마크다운(제목, SEO 메타, 해시태그, 본문) 반환 |
 | GET | `/api/history` | 히스토리 목록 (로그인 필요) |
 | DELETE | `/api/history/[id]` | 히스토리 항목 삭제 (로그인 필요) |
-| GET | `/api/auth/callback` | Supabase 로그인 콜백 |
+| GET | `/api/auth/callback` | Supabase Auth 콜백 (이메일 인증 → `/signup/complete`, OAuth → `/create`) |
 | POST | `/api/auth/delete-account` | 회원 탈퇴 (로그인 필요) |
