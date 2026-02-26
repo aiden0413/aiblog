@@ -9,6 +9,9 @@ interface AuthContextValue {
   user: User | null;
   isLoading: boolean;
   isConfigured: boolean;
+  /** Google 로그인 실패 시 메시지 (팝업 차단, OAuth 오류 등) */
+  signInError: string | null;
+  clearSignInError: () => void;
   signInWithGoogle: () => Promise<void>;
   signOut: () => Promise<void>;
 }
@@ -24,6 +27,7 @@ interface AuthProviderProps {
 export function AuthProvider({ children, initialSession = null }: AuthProviderProps) {
   const [session, setSession] = useState<Session | null>(initialSession ?? null);
   const [isLoading, setIsLoading] = useState(true);
+  const [signInError, setSignInError] = useState<string | null>(null);
 
   const supabase = createClient();
 
@@ -50,6 +54,7 @@ export function AuthProvider({ children, initialSession = null }: AuthProviderPr
 
   const signInWithGoogle = async () => {
     if (!supabase) return;
+    setSignInError(null);
     const { data, error } = await supabase.auth.signInWithOAuth({
       provider: "google",
       options: {
@@ -61,7 +66,14 @@ export function AuthProvider({ children, initialSession = null }: AuthProviderPr
       },
     });
 
-    if (error || !data?.url) return;
+    if (error) {
+      setSignInError(error.message ?? "Google 로그인을 시작할 수 없습니다.");
+      return;
+    }
+    if (!data?.url) {
+      setSignInError("Google 로그인을 시작할 수 없습니다.");
+      return;
+    }
 
     const width = 500;
     const height = 600;
@@ -73,17 +85,20 @@ export function AuthProvider({ children, initialSession = null }: AuthProviderPr
       `width=${width},height=${height},left=${left},top=${top}`
     );
 
-    if (popup) {
-      const interval = setInterval(() => {
-        if (popup.closed) {
-          clearInterval(interval);
-          supabase.auth.getSession().then(({ data: { session: s } }) => {
-            setSession(s);
-            if (s) window.location.href = "/create";
-          });
-        }
-      }, 500);
+    if (!popup) {
+      setSignInError("팝업이 차단되었습니다. 브라우저에서 팝업을 허용한 뒤 다시 시도해주세요.");
+      return;
     }
+
+    const interval = setInterval(() => {
+      if (popup.closed) {
+        clearInterval(interval);
+        supabase.auth.getSession().then(({ data: { session: s } }) => {
+          setSession(s);
+          if (s) window.location.href = "/create";
+        });
+      }
+    }, 500);
   };
 
   const signOut = async () => {
@@ -97,6 +112,8 @@ export function AuthProvider({ children, initialSession = null }: AuthProviderPr
     user: session?.user ?? null,
     isLoading,
     isConfigured: !!supabase,
+    signInError,
+    clearSignInError: () => setSignInError(null),
     signInWithGoogle,
     signOut,
   };

@@ -26,19 +26,27 @@ export function useGenerateBlog() {
       } catch (err) {
         const isNetworkError =
           err instanceof TypeError &&
-          (err.message === "Failed to fetch" || err.message.includes("network"));
+          (err.message === "Failed to fetch" || (err.message as string).includes("network"));
         if (isNetworkError) {
           throw "인터넷에 연결되어 있지 않거나 서버에 연결할 수 없습니다. 네트워크를 확인한 뒤 다시 시도해주세요.";
         }
         throw "요청 중 오류가 발생했습니다. 잠시 후 다시 시도해주세요.";
       }
 
-      const data = await res.json();
+      let data: unknown;
+      try {
+        data = await res.json();
+      } catch {
+        throw "응답을 처리할 수 없습니다. 잠시 후 다시 시도해주세요.";
+      }
 
       if (!res.ok) {
         const message =
-          data && typeof data === "object" && "error" in data && typeof data.error === "string"
-            ? data.error
+          data &&
+          typeof data === "object" &&
+          "error" in data &&
+          typeof (data as { error?: string }).error === "string"
+            ? (data as { error: string }).error
             : "요청에 실패했습니다. 잠시 후 다시 시도해주세요.";
         throw message;
       }

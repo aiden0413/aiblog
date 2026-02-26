@@ -7,3 +7,8 @@ export class OpenAIGenerateResultEntity {
     public metaDescription: string
   ) {}
 }
+
+export type OpenAIGenerateResult = Pick<
+  OpenAIGenerateResultEntity,
+  "title" | "content" | "hashtags" | "metaDescription"
+>;

@@ -49,28 +49,39 @@ async function fetchHistory(): Promise<BlogHistoryItem[]> {
     throw new Error("히스토리를 불러올 수 없습니다. 잠시 후 다시 시도해주세요.");
   }
 
-  const data = await res.json();
+  let data: unknown;
+  try {
+    data = await res.json();
+  } catch {
+    throw new Error("응답을 처리할 수 없습니다. 잠시 후 다시 시도해주세요.");
+  }
 
   if (!res.ok) {
     if (res.status === 401) return [];
     const message =
-      data && typeof data === "object" && "error" in data && typeof data.error === "string"
-        ? data.error
+      data &&
+      typeof data === "object" &&
+      "error" in data &&
+      typeof (data as { error?: string }).error === "string"
+        ? (data as { error: string }).error
         : "요청에 실패했습니다. 잠시 후 다시 시도해주세요.";
     throw new Error(message);
   }
 
-  const items = Array.isArray(data?.items) ? data.items : [];
-  return items.map((row: Record<string, unknown>) =>
-    historyDtoToItem({
+  const items = Array.isArray((data as { items?: unknown[] })?.items)
+    ? (data as { items: unknown[] }).items
+    : [];
+  return items.map((rowUnknown: unknown) => {
+    const row = rowUnknown as Record<string, unknown>;
+    return historyDtoToItem({
       id: String(row.id),
       topic: String(row.topic),
       keywords: Array.isArray(row.keywords) ? (row.keywords as string[]) : [],
       style: (row.style as StyleType) ?? "tutorial",
       result: row.result as GenerateResponseDto,
       createdAt: String(row.createdAt),
-    })
-  );
+    });
+  });
 }
 
 async function deleteHistory(id: string): Promise<void> {

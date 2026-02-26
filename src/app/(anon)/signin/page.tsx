@@ -13,7 +13,14 @@ const DEMO_PASSWORD = "A1b@C2d#E3f$G4h!";
 
 export default function SignInPage() {
   const router = useRouter();
-  const { user, isLoading: authLoading, signInWithGoogle, isConfigured } = useAuth();
+  const {
+    user,
+    isLoading: authLoading,
+    signInWithGoogle,
+    isConfigured,
+    signInError,
+    clearSignInError,
+  } = useAuth();
   const [email, setEmail] = useState(DEMO_EMAIL);
   const [password, setPassword] = useState(DEMO_PASSWORD);
   const [error, setError] = useState<string | null>(null);
@@ -148,6 +155,22 @@ export default function SignInPage() {
                 </span>
               </div>
             </div>
+            {signInError && (
+              <div
+                role="alert"
+                className="rounded-lg border border-red-200 bg-red-50 px-3 py-2 text-sm text-red-700 dark:border-red-800 dark:bg-red-950/50 dark:text-red-300"
+              >
+                {signInError}
+                <button
+                  type="button"
+                  onClick={clearSignInError}
+                  className="ml-2 underline focus:outline-none focus:ring-2 focus:ring-red-500 rounded"
+                  aria-label="에러 메시지 닫기"
+                >
+                  닫기
+                </button>
+              </div>
+            )}
             <button
               type="button"
               onClick={() => signInWithGoogle()}

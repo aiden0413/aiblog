@@ -1,6 +1,6 @@
 import OpenAI from "openai";
 import { OpenAIGenerateResultEntity } from "@/backend/domain/entities/OpenAIGenerateResult";
-import type { GenerateContext } from "@/backend/domain/entities/BlogHistory";
+import type { BlogHistoryContext } from "@/backend/domain/entities/BlogHistory";
 import type { PromptGenerateRepository } from "@/backend/domain/repository/PromptGenerateRepository";
 import type { SupabaseClient } from "@supabase/supabase-js";
 
@@ -29,7 +29,7 @@ export function createPromptGenerateRepository(
   return {
     async generate(
       params: { systemContent: string; userContent: string },
-      context?: GenerateContext
+      context?: BlogHistoryContext
     ): Promise<OpenAIGenerateResultEntity> {
       const { systemContent, userContent } = params;
 

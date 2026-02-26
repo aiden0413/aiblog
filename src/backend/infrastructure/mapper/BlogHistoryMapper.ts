@@ -1,4 +1,5 @@
 import { BlogHistoryEntity } from "@/backend/domain/entities/BlogHistory";
+import type { StyleType } from "@/backend/domain/entities/BlogHistory";
 
 /** Supabase blog_history 테이블 행 타입 (snake_case) */
 export interface BlogHistorySupabaseRow {
@@ -22,7 +23,7 @@ export function toBlogHistoryEntity(row: BlogHistorySupabaseRow): BlogHistoryEnt
     row.user_id,
     row.topic,
     row.keywords,
-    row.style as BlogHistoryEntity["style"],
+    row.style as StyleType,
     {
       title: row.result.title,
       content: row.result.content,
