@@ -102,8 +102,6 @@ export interface ResultSectionProps {
   isPending?: boolean;
   /** API/네트워크 에러 시 사용자에게 보여줄 메시지. 있으면 에러 UI 표시. */
   errorMessage?: string | null;
-  /** 오프라인 배너 표시 여부. true면 결과 영역 max-height를 줄여 하단 버튼이 잘리지 않게 함. */
-  isOffline?: boolean;
   /** true면 모바일에서 max-height 제한 없이 부모 높이를 꽉 채움 (히스토리 페이지 등). */
   fillHeightOnMobile?: boolean;
 }
@@ -147,7 +145,6 @@ export function ResultSection({
   result,
   isPending = false,
   errorMessage = null,
-  isOffline = false,
   fillHeightOnMobile = false,
 }: ResultSectionProps) {
   const showToast = useToast();
@@ -226,17 +223,6 @@ ${bodyHtml}
           : "min-[900px]:h-full max-h-[calc(100dvh-81px-120px)] min-[900px]:max-h-none")
       }
     >
-      {isOffline && (
-        <div
-          className="shrink-0 flex items-center justify-center gap-2 bg-amber-500 text-white px-4 py-2 text-sm font-medium"
-          role="alert"
-        >
-          <svg className="w-5 h-5 shrink-0" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M18.364 5.636a9 9 0 010 12.728m0 0l-2.829-2.829m2.829 2.829L21 21M15.536 8.464a5 5 0 010 7.072m0 0l-2.829-2.829m-4.243 2.829a4.978 4.978 0 01-1.414-2.83m-1.414 5.658a9 9 0 01-2.167-9.238m7.824 2.167a1 1 0 111.414 1.414m-1.414-1.414L3 3m8.293 8.293l1.414 1.414" />
-          </svg>
-          <span>인터넷에 연결되어 있지 않습니다. 블로그 생성을 하려면 네트워크를 확인해주세요.</span>
-        </div>
-      )}
       <div
         ref={scrollContainerRef}
         className="p-6 flex-1 min-h-0 min-w-0 overflow-x-hidden overflow-y-auto relative"

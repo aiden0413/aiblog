@@ -13,7 +13,6 @@ export interface CreatePageMobileProps {
   displayResult: GenerateResponseDto | undefined;
   errorMessage: string | null;
   isPending: boolean;
-  isOffline: boolean;
   isHistoryOpen: boolean;
   onHistoryClose: () => void;
   onHistoryToggle: () => void;
@@ -40,7 +39,6 @@ export function CreatePageMobile({
   displayResult,
   errorMessage,
   isPending,
-  isOffline,
   isHistoryOpen,
   onHistoryClose,
   onHistoryToggle,
@@ -106,7 +104,6 @@ export function CreatePageMobile({
           result={displayResult}
           isPending={isPending}
           errorMessage={errorMessage}
-          isOffline={isOffline}
         />
       </div>
     </main>

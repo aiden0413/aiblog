@@ -20,7 +20,6 @@ export function HistoryDetailSection({
       {selectedItem?.result ? (
         <ResultSection
           result={selectedItem.result}
-          isOffline={false}
           fillHeightOnMobile={fillResultHeightOnMobile}
         />
       ) : selectedItem ? (

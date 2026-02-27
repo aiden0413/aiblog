@@ -47,20 +47,6 @@ export default function CreatePage() {
     error: generateError,
     reset: resetGenerateError,
   } = useGenerateBlog();
-  const [isOffline, setIsOffline] = useState(false);
-
-  useEffect(() => {
-    const handleOnline = () => setIsOffline(false);
-    const handleOffline = () => setIsOffline(true);
-    const syncOffline = () => setIsOffline(!navigator.onLine);
-    window.addEventListener("online", handleOnline);
-    window.addEventListener("offline", handleOffline);
-    queueMicrotask(syncOffline);
-    return () => {
-      window.removeEventListener("online", handleOnline);
-      window.removeEventListener("offline", handleOffline);
-    };
-  }, []);
 
   const showToast = useToast();
 
@@ -163,7 +149,6 @@ export default function CreatePage() {
     displayResult,
     errorMessage,
     isPending,
-    isOffline,
     isHistoryOpen,
     onHistoryClose: () => setIsHistoryOpen(false),
     onHistoryToggle: handleHistoryToggle,

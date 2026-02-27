@@ -11,7 +11,6 @@ export interface CreatePageDesktopProps {
   displayResult: GenerateResponseDto | undefined;
   errorMessage: string | null;
   isPending: boolean;
-  isOffline: boolean;
   isHistoryOpen: boolean;
   onHistoryClose: () => void;
   onHistoryToggle: () => void;
@@ -19,16 +18,14 @@ export interface CreatePageDesktopProps {
 
 function HistoryToggleButton({
   onClick,
-  isOffline,
 }: {
   onClick: () => void;
-  isOffline: boolean;
 }) {
   return (
     <button
       type="button"
       onClick={onClick}
-      className={`fixed right-4 z-30 inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 shadow-sm outline-none hover:bg-zinc-50 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-purple-600 ${isOffline ? "top-36" : "top-24"}`}
+      className="fixed right-4 top-24 z-30 inline-flex h-10 w-10 items-center justify-center rounded-md border border-zinc-200 bg-white text-zinc-600 shadow-sm outline-none hover:bg-zinc-50 hover:text-zinc-900 focus:ring-2 focus:ring-purple-500 dark:border-zinc-600 dark:bg-zinc-800 dark:text-zinc-400 dark:hover:bg-zinc-700 dark:hover:text-white dark:focus:ring-purple-600"
       aria-label="히스토리"
     >
       <MdHistory className="h-5 w-5" />
@@ -41,7 +38,6 @@ export function CreatePageDesktop({
   displayResult,
   errorMessage,
   isPending,
-  isOffline,
   isHistoryOpen,
   onHistoryClose,
   onHistoryToggle,
@@ -52,9 +48,7 @@ export function CreatePageDesktop({
         <InputSection {...inputSectionProps} submitAtBottom />
       </aside>
 
-      {!isHistoryOpen && (
-        <HistoryToggleButton onClick={onHistoryToggle} isOffline={isOffline} />
-      )}
+      {!isHistoryOpen && <HistoryToggleButton onClick={onHistoryToggle} />}
 
       <div className="relative flex-1 min-w-0 min-h-0 flex flex-col">
         {isHistoryOpen && (
@@ -74,7 +68,6 @@ export function CreatePageDesktop({
           result={displayResult}
           isPending={isPending}
           errorMessage={errorMessage}
-          isOffline={isOffline}
         />
       </div>
     </main>
