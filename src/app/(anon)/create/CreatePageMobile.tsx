@@ -91,7 +91,7 @@ export function CreatePageMobile({
           <button
             type="button"
             onClick={onHistoryClose}
-            className="absolute top-0 left-0 right-0 bottom-[4.5rem] z-20 bg-black/30"
+            className="absolute top-0 left-0 right-0 bottom-[4.5rem] z-[70] bg-black/30"
             aria-label="히스토리 패널 닫기"
           />
         )}
