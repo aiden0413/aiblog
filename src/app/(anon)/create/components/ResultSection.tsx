@@ -7,11 +7,80 @@ import type { GenerateResponseDto } from "@/backend/applications/prompt/dtos/Gen
 import { Button } from "../../components/commons/Button";
 import { useToast } from "../../components/commons/Toast";
 
+interface FileSystemWritableFileStream {
+  write(data: Blob | BufferSource | string): Promise<void>;
+  close(): Promise<void>;
+}
+
+interface FileSystemFileHandle {
+  createWritable(options?: { keepExistingData?: boolean }): Promise<FileSystemWritableFileStream>;
+}
+
+interface FilePickerAcceptType {
+  description?: string;
+  accept: Record<string, string[]>;
+}
+
+interface FilePickerOptions {
+  suggestedName?: string;
+  types?: FilePickerAcceptType[];
+}
+
+interface WindowWithFileSystemAccess extends Window {
+  showSaveFilePicker?: (options?: FilePickerOptions) => Promise<FileSystemFileHandle>;
+}
+
 function sanitizeFileName(name: string): string {
   return name.replace(/[/\\:*?"<>|]/g, "").trim() || "download";
 }
 
-function downloadBlob(blob: Blob, filename: string): void {
+async function downloadBlob(
+  blob: Blob,
+  filename: string,
+  options?: { description: string; extension: string }
+): Promise<void> {
+  if (typeof window !== "undefined" && "showSaveFilePicker" in window) {
+    try {
+      const pickerWindow = window as unknown as WindowWithFileSystemAccess;
+      const pickerOptions: FilePickerOptions | undefined = options
+        ? {
+            suggestedName: filename,
+            types: [
+              {
+                description: options.description,
+                accept: {
+                  [blob.type.split(";")[0]]: [options.extension],
+                },
+              },
+            ],
+          }
+        : { suggestedName: filename };
+
+      const handle = await pickerWindow.showSaveFilePicker?.(pickerOptions);
+      if (!handle) {
+        throw new Error("showSaveFilePicker is not available");
+      }
+      const writable = await handle.createWritable();
+      await writable.write(blob);
+      await writable.close();
+      return;
+    } catch (error) {
+      const isAbortError =
+        error instanceof DOMException
+          ? error.name === "AbortError"
+          : typeof error === "object" &&
+            error !== null &&
+            "name" in error &&
+            (error as { name: unknown }).name === "AbortError";
+
+      if (isAbortError) {
+        // 사용자가 저장 대화상자에서 취소를 누른 경우: 아무 동작도 하지 않고 종료.
+        return;
+      }
+      // 그 외 오류(미지원 브라우저 등)는 아래 폴백 다운로드 로직으로 진행.
+    }
+  }
+
   const url = URL.createObjectURL(blob);
   const a = document.createElement("a");
   a.href = url;
@@ -101,7 +170,10 @@ export function ResultSection({
   const handleMdDownload = (content: string, title: string) => {
     const blob = new Blob([content], { type: "text/markdown;charset=utf-8" });
     const filename = `${sanitizeFileName(title)}.md`;
-    downloadBlob(blob, filename);
+    void downloadBlob(blob, filename, {
+      description: "Markdown 파일",
+      extension: ".md",
+    });
   };
 
   const handleHtmlDownload = (
@@ -128,7 +200,10 @@ ${bodyHtml}
 </html>`;
     const blob = new Blob([html], { type: "text/html;charset=utf-8" });
     const filename = `${sanitizeFileName(title)}.html`;
-    downloadBlob(blob, filename);
+    void downloadBlob(blob, filename, {
+      description: "HTML 파일",
+      extension: ".html",
+    });
   };
 
   function escapeHtml(text: string): string {
