@@ -90,9 +90,9 @@ export function UserMenu({ user, onSignOut }: UserMenuProps) {
         (() => {
           const portalTarget = document.getElementById("modal-root") ?? document.body;
           return createPortal(
-            <div
+          <div
               ref={dropdownRef}
-              className="fixed z-50 min-w-[11rem] max-w-[16rem] rounded-md border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
+              className="fixed z-[120] min-w-[11rem] max-w-[16rem] rounded-md border border-zinc-200 bg-white py-1 shadow-lg dark:border-zinc-700 dark:bg-zinc-800"
               style={{ top: dropdownPosition.top, right: dropdownPosition.right }}
               role="menu"
             >

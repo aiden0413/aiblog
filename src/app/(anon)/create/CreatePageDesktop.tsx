@@ -61,7 +61,7 @@ export function CreatePageDesktop({
           <button
             type="button"
             onClick={onHistoryClose}
-            className="absolute inset-0 z-20 bg-black/30"
+            className="absolute inset-0 z-[70] bg-black/30"
             aria-label="히스토리 패널 닫기"
           />
         )}

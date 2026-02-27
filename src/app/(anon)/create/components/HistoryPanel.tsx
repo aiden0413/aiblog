@@ -91,7 +91,7 @@ export function HistoryPanel({
       {/* 우측 슬라이드 패널. 인라인 렌더(첫 페인트에 포함) */}
       <div
         data-allow-transition
-        className="fixed right-0 z-40 w-full max-w-[280px] border-l border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 top-[81px] bottom-[4.5rem] min-[900px]:bottom-0"
+        className="fixed right-0 z-[80] w-full max-w-[280px] border-l border-zinc-200 bg-white dark:border-zinc-700 dark:bg-zinc-900 top-[81px] bottom-[4.5rem] min-[900px]:bottom-0"
         style={{
           transform: isOpen ? "translateX(0)" : "translateX(100%)",
           transition: "transform 300ms cubic-bezier(0.32, 0.72, 0, 1)",
