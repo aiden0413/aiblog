@@ -1,4 +1,5 @@
 import OpenAI from "openai";
+import { z } from "zod";
 import { OpenAIGenerateResultEntity } from "@/backend/domain/entities/OpenAIGenerateResult";
 import type { BlogHistoryContext } from "@/backend/domain/entities/BlogHistory";
 import type { PromptGenerateRepository } from "@/backend/domain/repository/PromptGenerateRepository";
@@ -6,16 +7,36 @@ import type { SupabaseClient } from "@supabase/supabase-js";
 
 const BLOG_HISTORY_TABLE = "blog_history";
 
-function parseJsonResponse(raw: string): Partial<OpenAIGenerateResultEntity> {
+const openAIGenerateResultSchema = z
+  .object({
+    title: z.string().optional(),
+    content: z.string().optional(),
+    hashtags: z.array(z.string()).optional(),
+    metaDescription: z.string().optional(),
+  })
+  .strict();
+
+type OpenAIGenerateResultSchema = z.infer<typeof openAIGenerateResultSchema>;
+
+function parseJsonResponse(raw: string): OpenAIGenerateResultSchema {
   const jsonMatch = raw.match(/\{[\s\S]*\}/);
   if (!jsonMatch) {
     throw new Error("JSON 형식의 응답을 파싱할 수 없습니다.");
   }
+
+  let parsed: unknown;
   try {
-    return JSON.parse(jsonMatch[0]) as Partial<OpenAIGenerateResultEntity>;
+    parsed = JSON.parse(jsonMatch[0]) as unknown;
   } catch {
     throw new Error("JSON 파싱에 실패했습니다.");
   }
+
+  const result = openAIGenerateResultSchema.safeParse(parsed);
+  if (!result.success) {
+    throw new Error("OpenAI 응답 스키마 검증에 실패했습니다.");
+  }
+
+  return result.data;
 }
 
 export function createPromptGenerateRepository(
